@@ -24,8 +24,6 @@ def positive_negative_amino_acids(translation):
 
 
 def create_data_dictionary(record_gb):
-    print(type(record_gb))
-    record_gb = SeqRecord(record_gb)
     features = {}
     seq = record_gb.seq.upper()
     for feature in record_gb.features:
