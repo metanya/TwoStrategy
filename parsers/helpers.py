@@ -26,49 +26,43 @@ def positive_negative_amino_acids(translation):
 def create_data_dictionary(record_gb):
     features = {}
     seq = record_gb.seq.upper()
-    #print("seq:")
-    #print(record_gb.seq)
-    print("features:")
-    print(record_gb.features)
-    print("feature len:")
-    print(len(record_gb.features))
-    for i in record_gb.features:######################################################################
-        for feature in record_gb.features:
-            trans_table = ""
-            translation = ""
-            gene = ""
-            locus_tag = ""
-            positive = -1
-            negative = -1
-            product = ""
-            if 'transl_table' in feature.qualifiers:
-                trans_table = feature.qualifiers['transl_table'][0]
-            if 'translation' in feature.qualifiers:
-                translation = feature.qualifiers['translation'][0]
-                positive, negative = positive_negative_amino_acids(translation)
-            if 'gene' in feature.qualifiers:
-                gene = feature.qualifiers['gene'][0]
-            if 'locus_tag' in feature.qualifiers:
-                locus_tag = feature.qualifiers['locus_tag'][0]
-            if 'product' in feature.qualifiers:
-                product = feature.qualifiers['product'][0]
+    for feature in record_gb.features:
+        trans_table = ""
+        translation = ""
+        gene = ""
+        locus_tag = ""
+        positive = -1
+        negative = -1
+        product = ""
+        if 'transl_table' in feature.qualifiers:
+            trans_table = feature.qualifiers['transl_table'][0]
+        if 'translation' in feature.qualifiers:
+            translation = feature.qualifiers['translation'][0]
+            positive, negative = positive_negative_amino_acids(translation)
+        if 'gene' in feature.qualifiers:
+            gene = feature.qualifiers['gene'][0]
+        if 'locus_tag' in feature.qualifiers:
+            locus_tag = feature.qualifiers['locus_tag'][0]
+        if 'product' in feature.qualifiers:
+            product = feature.qualifiers['product'][0]
 
-            gc_percentage = get_protein_gc_percentage(feature, seq)
-            name = str(feature.location.start) + " " + feature.type
-            features[name] = {"start": feature.location.start,
-                              "end": feature.location.end,
-                              "length": feature.location.end - feature.location.start,
-                              "type": feature.type,
-                              "trans_table": trans_table,
-                              "translation": translation,
-                              "gene": gene,
-                              "locus_tag": locus_tag,
-                              "gc_percentage": gc_percentage,
-                              "strand": feature.location.strand,
-                              "amino_acid_positive_percentage": positive,
-                              "amino_acid_negative_percentage": negative,
-                              "product": product}
-        return features
+        gc_percentage = get_protein_gc_percentage(feature, seq)
+        name = str(feature.location.start) + " " + feature.type
+        features[name] = {"start": feature.location.start,
+                          "end": feature.location.end,
+                          "length": feature.location.end - feature.location.start,
+                          "type": feature.type,
+                          "trans_table": trans_table,
+                          "translation": translation,
+                          "gene": gene,
+                          "locus_tag": locus_tag,
+                          "gc_percentage": gc_percentage,
+                          "strand": feature.location.strand,
+                          "amino_acid_positive_percentage": positive,
+                          "amino_acid_negative_percentage": negative,
+                          "product": product}
+
+    return features
 
 
 def transpose(features):
