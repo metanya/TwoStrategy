@@ -20,7 +20,7 @@ class Record:
             return list_of_records[0]
 
     def get_record_content(self):
-        file_name = '{}.gb'.format(self.record_id)
+        file_name = 'data\\gb\\{}.gb'.format(self.record_id)
         with open(file_name, "r") as handle:
             for i, record_gb in enumerate(SeqIO.parse(handle, "genbank")):
                 print('Record number: {}\n============='.format(i))
@@ -28,11 +28,11 @@ class Record:
             return record_gb  # next(record_gb) # the last record
 
     def create_genbank_file(self):
-        if not os.path.exists('{}.gb'.format(self.record_id)):  # if the file not exists
+        if not os.path.exists('data\\gb\\{}.gb'.format(self.record_id)):  # if the file not exists
 
             Entrez.email = ENTREZ_EMAIL
 
             with Entrez.efetch(db="nucleotide", id=self.record_id, rettype="gb", retmode="text") as handle:
-                with open('{}.gb'.format(self.record_id), "w") as out_handle:
+                with open('data\\gb\\{}.gb'.format(self.record_id), "w") as out_handle:
                     out_handle.write(handle.read())
                 print("The file: {}.gb created".format(self.record_id))
