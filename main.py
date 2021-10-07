@@ -2,105 +2,44 @@ from record.record import Record
 from parsers.parser import Parser
 
 if __name__ == '__main__':
-    # record = Record("AP006627")
-    # record.create_genbank_file()
-    # AP006627_record_content = record.get_record_content()
+    # species_dictionary = {"species_name1":"Refseq1" , "species_name2":"Refseq2",.....}
+    species_dictionary = {
+        '''***Cyanophages:***'''
+        # ------Moyviruses:------
+        "P_SSM4": "NC_006884.1",      # P-SSM4: (Refseq=NC006884)
+        "P_SSM2": "NC_006883",      # P-SSM2: (Refseq=NC006883)
+        "Syn9": "NC_008296",        # Syn9: (Refseq=NC008296)
+        "S_RSM4": "FM207411",       # S-RSM4: (Refseq=FM207411)
+        "S_PM2": "NC_006820",       # S-PM2: (Refseq=NC006820)
+        # ------Podoviruses:------
+        "P_SSP7": "NC_006882",      #  P-SSP7: (Refseq=NC006882)
+        "Syn5": "NC_009531",        #  Syn5: (Refseq=NC009531)
+        "P60": "NC_003390",         #  P60: (Refseq=NC003390)
 
-    # parser = Parser()
-    # xxxxxx #parser.get_data_frame("test.csv", AP006627_record_content)
-    # parser.get_data_frame('data\\csv\\{}.csv'.format(record.record_id), AP006627_record_content)
+        '''***Cyanobacteria:***'''
+        # ------Prochlorococcus:------
+        # - - - - - - HL-Prochlorococcus:
+        "MED4": "NC_005072",        # Prochlorococcus marinus subsp pastoris str. CCMP1986 (MED4): (Refseq=NC_005072)
+        "MIT_9515": "NC_008817",    # Prochlorococcus marinus str. MIT 9515: (Refseq=NC_008817)
+        "MIT_9312": "NC_007577",    # Prochlorococcus marinus str. MIT 9312: (Refseq=NC_007577)
+        "MIT_9215": "NC_009840",    # Prochlorococcus marinus str. MIT 9215: (Refseq=NC_009840)
+        # - - - - - - LL-Prochlorococcus:
+        "NATL1A": "NC_008819",      # Prochlorococcus marinus str. NATL1A: (Refseq=NC_008819)
+        "NATL2A": "NC_007335",      # Prochlorococcus marinus str. NATL2A: (Refseq=NC_007335)
+        "SS120": "NC_005042",       # Prochlorococcus marinus subsp marinus str. CCMP1375 (SS120): (Refseq=NC_005042)
+        "MIT_9211": "NC_009976",    # Prochlorococcus marinus str. MIT 9211: (Refseq=NC_009976)
+        "MIT_9303": "NC_008820",    # Prochlorococcus marinus str. MIT 9303: (Refseq=NC_008820)
+        "MIT_9313": "NC_005071",    # Prochlorococcus marinus str. MIT 9313: (Refseq=NC_005071)
+
+        # ------Synechococcus:------
+        "WH_8102": "NC_005070",     #  Synechococcus sp. WH 8102:(Refseq=NC_005070)
+        "WH_7803": "NC_009481",     #  Synechococcus sp. WH 7803:(Refseq=NC_009481)
+
+    }
 
     parser = Parser()
 
-    '''***Cyanophages:***'''
-    # ------Moyviruses:------
-    #  P-SSM4: (Refseq=NC006884)
-    P_SSM4_record = Record("NC_006884")
-    P_SSM4_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(P_SSM4_record.record_id), P_SSM4_record.get_record_content())
-    #  P-SSM2: (Refseq=NC006883)
-    P_SSM2_record = Record("NC_006883")
-    P_SSM2_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(P_SSM2_record.record_id), P_SSM2_record.get_record_content())
-    #  Syn9: (Refseq=NC008296)
-    Syn9_record = Record("NC_008296")
-    Syn9_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(Syn9_record.record_id), Syn9_record.get_record_content())
-    #  S-RSM4: (Refseq=FM207411)
-    S_RSM4_record = Record("FM207411")
-    S_RSM4_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(S_RSM4_record.record_id), S_RSM4_record.get_record_content())
-    #  S-PM2: (Refseq=NC006820)
-    S_PM2_record = Record("NC_006820")
-    S_PM2_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(S_PM2_record.record_id), S_PM2_record.get_record_content())
-
-    # ------Podoviruses:------
-    #  P-SSP7: (Refseq=NC006882)
-    P_SSP7_record = Record("NC_006882")
-    P_SSP7_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(P_SSP7_record.record_id), P_SSP7_record.get_record_content())
-    #  Syn5: (Refseq=NC009531)
-    Syn5_record = Record("NC_009531")
-    Syn5_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(Syn5_record.record_id), Syn5_record.get_record_content())
-    #  P60: (Refseq=NC003390)
-    P60_record = Record("NC_003390")
-    P60_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(P60_record.record_id), P60_record.get_record_content())
-
-    '''***Cyanobacteria:***'''
-    # ------Prochlorococcus:------
-    # - - - - - - HL-Prochlorococcus:
-    # Prochlorococcus marinus subsp pastoris str. CCMP1986 (MED4): (Refseq=NC_005072)
-    MED4_record = Record("NC_005072")
-    MED4_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MED4_record.record_id), MED4_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9515: (Refseq=NC_008817)
-    MIT_9515_record = Record("NC_008817")
-    MIT_9515_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9515_record.record_id), MIT_9515_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9312: (Refseq=NC_007577)
-    MIT_9312_record = Record("NC_007577")
-    MIT_9312_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9312_record.record_id), MIT_9312_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9215: (Refseq=NC_009840)
-    MIT_9215_record = Record("NC_009840")
-    MIT_9215_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9215_record.record_id), MIT_9215_record.get_record_content())
-
-    # - - - - - - LL-Prochlorococcus:
-    # Prochlorococcus marinus str. NATL1A: (Refseq=NC_008819)
-    NATL1A_record = Record("NC_008819")
-    NATL1A_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(NATL1A_record.record_id), NATL1A_record.get_record_content())
-    # Prochlorococcus marinus str. NATL2A: (Refseq=NC_007335)
-    NATL2A_record = Record("NC_007335")
-    NATL2A_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(NATL2A_record.record_id), NATL2A_record.get_record_content())
-    # Prochlorococcus marinus subsp marinus str. CCMP1375 (SS120): (Refseq=NC_005042)
-    SS120_record = Record("NC_005042")
-    SS120_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(SS120_record.record_id), SS120_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9211: (Refseq=NC_009976)
-    MIT_9211_record = Record("NC_009976")
-    MIT_9211_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9211_record.record_id), MIT_9211_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9303: (Refseq=NC_008820)
-    MIT_9303_record = Record("NC_008820")
-    MIT_9303_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9303_record.record_id), MIT_9303_record.get_record_content())
-    # Prochlorococcus marinus str. MIT 9313: (Refseq=NC_005071)
-    MIT_9313_record = Record("NC_005071")
-    MIT_9313_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(MIT_9313_record.record_id), MIT_9313_record.get_record_content())
-
-    # ------Synechococcus:------
-    #  Synechococcus sp. WH 8102:(Refseq=NC_005070)
-    WH_8102_record = Record("NC_005070")
-    WH_8102_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(WH_8102_record.record_id), WH_8102_record.get_record_content())
-    #  Synechococcus sp. WH 7803:(Refseq=NC_009481)
-    WH_7803_record = Record("NC_009481")
-    WH_7803_record.create_genbank_file()
-    parser.get_data_frame('data\\csv\\{}.csv'.format(WH_7803_record.record_id), WH_7803_record.get_record_content())
+    for species in species_dictionary:
+        obj = Record(species_dictionary[species])
+        obj.create_genbank_file()
+        parser.get_data_frame('data\\csv\\{}.csv'.format(obj.record_id),obj.get_record_content())
