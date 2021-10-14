@@ -3,6 +3,13 @@ from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
 
+def get_protein_gc_number(feature, seq):
+    seq = seq[feature.location.start.position: feature.location.end.position]
+    counter_g = seq.count('G')
+    counter_c = seq.count('C')
+    return counter_c + counter_g
+
+
 def get_protein_gc_percentage(feature, seq):
     seq = seq[feature.location.start.position: feature.location.end.position]
     counter_g = seq.count('G')
@@ -46,6 +53,7 @@ def create_data_dictionary(record_gb):
         if 'product' in feature.qualifiers:
             product = feature.qualifiers['product'][0]
 
+        gc_number = get_protein_gc_number(feature, seq)
         gc_percentage = get_protein_gc_percentage(feature, seq)
         name = str(feature.location.start) + " " + feature.type
         features[name] = {"start": feature.location.start,
@@ -56,6 +64,7 @@ def create_data_dictionary(record_gb):
                           "translation": translation,
                           "gene": gene,
                           "locus_tag": locus_tag,
+                          "gc_number": gc_number,
                           "gc_percentage": gc_percentage,
                           "strand": feature.location.strand,
                           "amino_acid_positive_percentage": positive,

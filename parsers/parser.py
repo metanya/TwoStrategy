@@ -14,3 +14,4 @@ class Parser:
         if not os.path.exists('data\\csv\\'):
             os.makedirs('data\\csv\\')
         convert_dictionary_to_csv_file(df, csv_name)
+        return df#added

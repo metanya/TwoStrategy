@@ -11,6 +11,8 @@ def assert_gb_folder():
 class Record:
     def __init__(self, record_id):
         self.record_id = record_id
+        self.main_attributes_dictionary = {}  # added
+        self.df={} #added
 
     def search(self):
         Entrez.email = ENTREZ_EMAIL
