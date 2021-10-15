@@ -1,4 +1,4 @@
-from record.helpers import get_main_attributes
+# from record.helpers import get_main_attributes
 from record.record import Record
 from parsers.parser import Parser
 from records.records import Records

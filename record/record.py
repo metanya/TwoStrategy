@@ -1,3 +1,5 @@
+from collections import Counter
+
 from Bio import Entrez, SeqIO
 from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER
 import os
@@ -8,11 +10,20 @@ def assert_gb_folder():
         os.makedirs(GENE_BANK_FOLDER)
 
 
+def assert_sum_of_genes(dictionary):
+    gene_num = dictionary["gene"]
+    all_genes_num = sum(dictionary.values())
+    assert all_genes_num - gene_num - 1 == gene_num
+
+
 class Record:
-    def __init__(self, record_id):
+    main_attributes_dictionary = {}
+
+    def __init__(self, record_id, parser):
         self.record_id = record_id
-        self.main_attributes_dictionary = {}  # added
-        self.df={} #added
+        self.create_genbank_file()
+        self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), self.get_record_content())
+        self.get_main_attributes()
 
     def search(self):
         Entrez.email = ENTREZ_EMAIL
@@ -33,12 +44,13 @@ class Record:
             return list_of_records[0]
 
     def get_record_content(self):
+        assert os.path.exists(GENE_BANK_FOLDER + '{}.gb'.format(self.record_id))
         file_name = GENE_BANK_FOLDER + '{}.gb'.format(self.record_id)
         with open(file_name, "r") as handle:
             for i, record_gb in enumerate(SeqIO.parse(handle, "genbank")):
-                print('Record number: {}\n============='.format(i))
-                print(record_gb)
-            return record_gb  # next(record_gb) # the last record
+                # print('Record number: {}\n============='.format(i))
+                # print(record_gb)
+                return record_gb  # next(record_gb) # the last record
 
     def create_genbank_file(self):
         assert_gb_folder()
@@ -53,3 +65,30 @@ class Record:
                 with open(GENE_BANK_FOLDER + '{}.gb'.format(self.record_id), "w") as out_handle:
                     out_handle.write(handle.read())
                 print("The file: {}.gb created".format(self.record_id))
+
+    def get_main_attributes(self):
+        genes_counter_dictionary = Counter(self.df["type"])
+        assert_sum_of_genes(genes_counter_dictionary)
+        self.main_attributes_dictionary.update(genes_counter_dictionary)
+
+        genome_size = self.df["length"][1]
+        self.main_attributes_dictionary["genome_size"] = genome_size
+        self.main_attributes_dictionary["percentage_of_genes_in_genome"] = (self.main_attributes_dictionary[
+                                                                                "gene_num"] / genome_size) * 100
+        self.main_attributes_dictionary["percentage_of_intergene_in_genome"] = ((genome_size -
+                                                                                 self.main_attributes_dictionary[
+                                                                                     "gene_num"]) / genome_size) * 100
+
+        self.main_attributes_dictionary["percentage_of_GC_in_genome"] = self.df["gc_percentage"][1]
+        GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
+        genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
+        GC_in_intergene_number = (self.df["gc_number"][1]) - GC_in_genes_number
+        intergene_seq_len = (self.df["length"][1]) - genes_seq_len
+
+        self.main_attributes_dictionary["percentage_of_GC_in_genes"] = (GC_in_genes_number / genes_seq_len) * 100
+        self.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (
+                                                                                   GC_in_intergene_number / intergene_seq_len) * 100
+
+        # self.main_attributes_dictionary["gene_num"] = self.df["type"].to_list().count('gene')
+        # self.main_attributes_dictionary["cds_num"] = self.df["type"].to_list().count('CDS')
+        # self.main_attributes_dictionary["trna_num"] = self.df["type"].to_list().count('tRNA')
