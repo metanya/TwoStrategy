@@ -12,14 +12,16 @@ def assert_gb_folder():
 
 def assert_sum_of_genes(dictionary):
     gene_num = dictionary["gene"]
-    all_genes_num = sum(dictionary.values())
-    assert all_genes_num - gene_num - 1 == gene_num
+    misc_feature_num = dictionary["misc_feature"]
+    sum_of_types = sum(dictionary.values())
+    assert sum_of_types - gene_num - 1 - misc_feature_num == gene_num
 
 
 class Record:
-    main_attributes_dictionary = {}
+    #main_attributes_dictionary = {}
 
     def __init__(self, record_id, parser):
+        self.main_attributes_dictionary = {}
         self.record_id = record_id
         self.create_genbank_file()
         self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), self.get_record_content())
@@ -67,28 +69,24 @@ class Record:
                 print("The file: {}.gb created".format(self.record_id))
 
     def get_main_attributes(self):
+        genome_size = self.df["length"][0]
+        self.main_attributes_dictionary["genome_size"] = genome_size
+
         genes_counter_dictionary = Counter(self.df["type"])
-        assert_sum_of_genes(genes_counter_dictionary)
+        #assert_sum_of_genes(genes_counter_dictionary)
         self.main_attributes_dictionary.update(genes_counter_dictionary)
 
-        genome_size = self.df["length"][1]
-        self.main_attributes_dictionary["genome_size"] = genome_size
-        self.main_attributes_dictionary["percentage_of_genes_in_genome"] = (self.main_attributes_dictionary[
-                                                                                "gene_num"] / genome_size) * 100
-        self.main_attributes_dictionary["percentage_of_intergene_in_genome"] = ((genome_size -
-                                                                                 self.main_attributes_dictionary[
-                                                                                     "gene_num"]) / genome_size) * 100
-
-        self.main_attributes_dictionary["percentage_of_GC_in_genome"] = self.df["gc_percentage"][1]
-        GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
-        genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
-        GC_in_intergene_number = (self.df["gc_number"][1]) - GC_in_genes_number
-        intergene_seq_len = (self.df["length"][1]) - genes_seq_len
-
-        self.main_attributes_dictionary["percentage_of_GC_in_genes"] = (GC_in_genes_number / genes_seq_len) * 100
-        self.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (
-                                                                                   GC_in_intergene_number / intergene_seq_len) * 100
-
-        # self.main_attributes_dictionary["gene_num"] = self.df["type"].to_list().count('gene')
-        # self.main_attributes_dictionary["cds_num"] = self.df["type"].to_list().count('CDS')
-        # self.main_attributes_dictionary["trna_num"] = self.df["type"].to_list().count('tRNA')
+        # self.main_attributes_dictionary["%genes_in_genome"] = (self.main_attributes_dictionary[
+        #                                                                         "gene"] / genome_size) * 100
+        # self.main_attributes_dictionary["%intergene_in_genome"] = ((genome_size -
+        #                                                                          self.main_attributes_dictionary[
+        #                                                                              "gene"]) / genome_size) * 100
+        #
+        # self.main_attributes_dictionary["percentage_of_GC_in_genome"] = self.df["gc_percentage"][1]
+        # GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
+        # genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
+        # GC_in_intergene_number = (self.df["gc_number"][1]) - GC_in_genes_number
+        # intergene_seq_len = (self.df["length"][1]) - genes_seq_len
+        #
+        # self.main_attributes_dictionary["percentage_of_GC_in_genes"] = (GC_in_genes_number / genes_seq_len) * 100
+        # self.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (GC_in_intergene_number / intergene_seq_len) * 100

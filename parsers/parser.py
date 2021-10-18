@@ -14,4 +14,12 @@ class Parser:
         if not os.path.exists('data\\csv\\'):
             os.makedirs('data\\csv\\')
         convert_dictionary_to_csv_file(df, csv_name)
-        return df#added
+        return df  # added
+
+    @staticmethod
+    def transpose(dictionary):
+        return transpose(dictionary)
+
+    @staticmethod
+    def to_csv(data_frame, path):
+        convert_dictionary_to_csv_file(data_frame, path)

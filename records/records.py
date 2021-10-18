@@ -17,5 +17,5 @@ class Records:
             self.records.append(record)
 
         main_attributes_dictionary_for_all_species = create_main_attributes_dictionary_for_all_species(self.records)
-        df_main_attributes_for_all_species = pd.DataFrame(main_attributes_dictionary_for_all_species)
-        df_main_attributes_for_all_species.to_csv('data\\csv\\main_attributes_for_all_species.csv')
+        df_main_attributes_for_all_species = parser.transpose(main_attributes_dictionary_for_all_species)
+        parser.to_csv(df_main_attributes_for_all_species, 'data\\csv\\main_attributes_for_all_species.csv')
