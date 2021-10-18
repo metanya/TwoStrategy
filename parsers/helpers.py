@@ -33,6 +33,7 @@ def positive_negative_amino_acids(translation):
 def create_data_dictionary(record_gb):
     features = {}
     seq = record_gb.seq.upper()
+    # record_gb.get_interregions()
     for feature in record_gb.features:
         trans_table = ""
         translation = ""
