@@ -2,6 +2,8 @@ import pandas as pd
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 
+from utils import fileUtils
+
 
 def get_protein_gc_number(feature, seq):
     seq = seq[feature.location.start.position: feature.location.end.position]
@@ -80,4 +82,5 @@ def transpose(features):
 
 
 def convert_dictionary_to_csv_file(df, csv_name_path):
+    # fileUtils.verify_file_is_closed(csv_name_path)
     df.to_csv(csv_name_path)
