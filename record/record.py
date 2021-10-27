@@ -27,6 +27,10 @@ def get_protein_gc_number(seq):
     return counter_c + counter_g
 
 
+def assert_number_of_intergenes_are_less_than_genes(size_of_genes, size_of_intergene):
+    assert size_of_genes >= size_of_intergene
+
+
 class Record:
 
     def __init__(self, record_id, parser):
@@ -85,21 +89,26 @@ class Record:
         self.main_attributes_dictionary.update(genes_counter_dictionary)
         # Problem in genes_seq_len
         genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
-        genes_in_genome = (genes_seq_len / genome_size) * 100
-        assert_percentage(genes_in_genome)
-        self.main_attributes_dictionary["%genes_in_genome"] = genes_in_genome
+        self.main_attributes_dictionary["gene_length_in_genome"] = genes_seq_len
+        gene_length_in_genome = (genes_seq_len / genome_size) * 100
+        # assert_percentage(gene_length_in_genome)
+        self.main_attributes_dictionary["%gene_length_in_genome"] = gene_length_in_genome
 
-        assert_percentage(self.df["gc_percentage"][0])
+        # assert_percentage(self.df["gc_percentage"][0])
         self.main_attributes_dictionary["percentage_of_GC_in_genome"] = self.df["gc_percentage"][0]  # to find
 
         GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
         percentage_of_GC_in_genes = (GC_in_genes_number / genes_seq_len)
-        assert_percentage(percentage_of_GC_in_genes)
+        # assert_percentage(percentage_of_GC_in_genes)
         self.main_attributes_dictionary["percentage_of_GC_in_genes"] = percentage_of_GC_in_genes * 100
 
         intergenes = intergeneTest.get_interregions(record_content)
+        assert_number_of_intergenes_are_less_than_genes(genes_counter_dictionary['gene'], len(intergenes))
+
         length_of_intergenes = sum(len(intergene.seq) for intergene in intergenes)
-        self.main_attributes_dictionary["%intergene_in_genome"] = (length_of_intergenes / (genome_size * 2)) * 100
+        self.main_attributes_dictionary["intergene_length_in_genome"] = length_of_intergenes
+        self.main_attributes_dictionary["%intergene_length_in_genome"] = (length_of_intergenes / (
+                genome_size * 2)) * 100
         length_of_intergenes_gc = sum(get_protein_gc_number(intergene.seq.upper()) for intergene in intergenes)
         self.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (length_of_intergenes_gc
                                                                             / length_of_intergenes) * 100
