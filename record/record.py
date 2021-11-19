@@ -1,8 +1,10 @@
-from collections import Counter
-from Bio import Entrez, SeqIO
-from intergeneTest import intergeneTest
-from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER
 import os
+from collections import Counter
+
+from Bio import Entrez, SeqIO
+
+from record.helpers import get_interregions
+from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, GENES
 
 
 def assert_gb_folder():
@@ -12,9 +14,9 @@ def assert_gb_folder():
 
 def assert_sum_of_genes(dictionary):
     gene_num = dictionary["gene"]
-    misc_feature_num = dictionary["misc_feature"]
-    sum_of_types = sum(dictionary.values())
-    assert sum_of_types - gene_num - 1 - misc_feature_num == gene_num
+    number_of_occurences = sum(dictionary[gene_type] for gene_type in GENES)
+    assert gene_num == number_of_occurences, "gene number is: {0} and number of the genes " \
+                                             "types is: {1}".format(gene_num, number_of_occurences)
 
 
 def assert_percentage(number):
@@ -27,8 +29,8 @@ def get_protein_gc_number(seq):
     return counter_c + counter_g
 
 
-def assert_number_of_intergenes_are_less_than_genes(size_of_genes, size_of_intergene):
-    assert size_of_genes >= size_of_intergene
+def assert_number_of_intergenes_are_greater_than_genes(size_of_genes, size_of_intergene):
+    assert size_of_genes <= size_of_intergene
 
 
 class Record:
@@ -85,30 +87,28 @@ class Record:
         self.main_attributes_dictionary["genome_size"] = genome_size
         genes_counter_dictionary = Counter(self.df["type"])
 
-        # assert_sum_of_genes(genes_counter_dictionary)
+        assert_sum_of_genes(genes_counter_dictionary)
         self.main_attributes_dictionary.update(genes_counter_dictionary)
-        # Problem in genes_seq_len
         genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
         self.main_attributes_dictionary["gene_length_in_genome"] = genes_seq_len
-        gene_length_in_genome = (genes_seq_len / genome_size) * 100
-        # assert_percentage(gene_length_in_genome)
-        self.main_attributes_dictionary["%gene_length_in_genome"] = gene_length_in_genome
+        gene_length_percent_in_genome = (genes_seq_len / (genome_size * 2)) * 100
+        assert_percentage(gene_length_percent_in_genome)
+        self.main_attributes_dictionary["%gene_length_in_genome"] = gene_length_percent_in_genome
 
-        # assert_percentage(self.df["gc_percentage"][0])
-        self.main_attributes_dictionary["percentage_of_GC_in_genome"] = self.df["gc_percentage"][0]  # to find
+        assert_percentage(self.df["gc_percentage"][0])
+        self.main_attributes_dictionary["%_of_GC_in_genome"] = self.df["gc_percentage"][0]  # to find
 
         GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
-        percentage_of_GC_in_genes = (GC_in_genes_number / genes_seq_len)
-        # assert_percentage(percentage_of_GC_in_genes)
-        self.main_attributes_dictionary["percentage_of_GC_in_genes"] = percentage_of_GC_in_genes * 100
+        percentage_of_GC_in_genes = (GC_in_genes_number / genes_seq_len) * 100
+        assert_percentage(percentage_of_GC_in_genes)
+        self.main_attributes_dictionary["%_of_GC_in_genes"] = percentage_of_GC_in_genes
 
-        intergenes = intergeneTest.get_interregions(record_content)
-        assert_number_of_intergenes_are_less_than_genes(genes_counter_dictionary['gene'], len(intergenes))
+        intergenes, length_of_intergenes = get_interregions(record_content)
+        # assert_number_of_intergenes_are_greater_than_genes(genes_counter_dictionary['gene'], len(intergenes))
 
-        length_of_intergenes = sum(len(intergene.seq) for intergene in intergenes)
         self.main_attributes_dictionary["intergene_length_in_genome"] = length_of_intergenes
         self.main_attributes_dictionary["%intergene_length_in_genome"] = (length_of_intergenes / (
                 genome_size * 2)) * 100
         length_of_intergenes_gc = sum(get_protein_gc_number(intergene.seq.upper()) for intergene in intergenes)
-        self.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (length_of_intergenes_gc
-                                                                            / length_of_intergenes) * 100
+        self.main_attributes_dictionary["%_of_GC_in_intergene"] = (length_of_intergenes_gc
+                                                                   / length_of_intergenes) * 100

@@ -6,6 +6,7 @@ from records.records import Records
 if __name__ == '__main__':
     # species_dictionary = {"species_name1":"Refseq1" , "species_name2":"Refseq2",.....}
     species_names_dictionary = {
+        # "NC_045512.2": "NC_045512.2", # cororna virus
         '''***Cyanophages:***'''
         # ------Moyviruses:------
         "P_SSM4": "NC_006884.1",  # circular PHG 26-MAR-2010

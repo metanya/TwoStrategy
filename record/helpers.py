@@ -1,29 +1,87 @@
-import pandas as pd
+import sys
+
+from Bio.Seq import reverse_complement
+from Bio.SeqRecord import SeqRecord
 
 
-# def get_main_attributes():
-#     '''
-#     type_col = pd.read_csv('data\\csv\\{}.csv'.format(record.record_id))
-#     gene_num = type_col["type"].to_list().count('gene')-1
-#     cds_num = type_col["type"].to_list().count('CDS')-1
-#     trna_num = type_col["type"].to_list().count('tRNA')
-#     '''
-#     self.main_attributes_dictionary["gene_num"] = record.df["type"].to_list().count('gene') - 1
-#     record.main_attributes_dictionary["cds_num"] = record.df["type"].to_list().count('CDS') - 1
-#     record.main_attributes_dictionary["trna_num"] = record.df["type"].to_list().count('tRNA')
-#     genome_size = record.df["length"][1]
-#     record.main_attributes_dictionary["genome_size"] = genome_size
-#     record.main_attributes_dictionary["percentage_of_genes_in_genome"] = (record.main_attributes_dictionary[
-#                                                                               "gene_num"] / genome_size) * 100
-#     record.main_attributes_dictionary["percentage_of_intergene_in_genome"] = ((genome_size -
-#                                                                                record.main_attributes_dictionary[
-#                                                                                    "gene_num"]) / genome_size) * 100
-#
-#     record.main_attributes_dictionary["percentage_of_GC_in_genome"] = record.df["gc_percentage"][1]
-#     GC_in_genes_number =record.df.loc[record.df['type']=='gene','gc_number'].sum()
-#     genes_seq_len =record.df.loc[record.df['type']=='gene','length'].sum()
-#     GC_in_intergene_number =(record.df["gc_number"][1])-GC_in_genes_number
-#     intergene_seq_len =(record.df["length"][1])-genes_seq_len
-#
-#     record.main_attributes_dictionary["percentage_of_GC_in_genes"] = (GC_in_genes_number / genes_seq_len) * 100
-#     record.main_attributes_dictionary["percentage_of_GC_in_intergene"] = (GC_in_intergene_number / intergene_seq_len) * 100
+# Copyright(C) 2009 Iddo Friedberg & Ian MC Fleming
+# Released under Biopython license. http://www.biopython.org/DIST/LICENSE
+# Do not remove this comment
+
+
+def get_interregions(genbank_record, intergene_length=1):
+    size = 0
+    gene_list_plus = []
+    gene_list_minus = []
+    intergenic_records = []
+
+    get_gene_features(genbank_record, gene_list_minus, gene_list_plus)
+    if len(gene_list_plus) != 0:
+        size += get_intergene(genbank_record, gene_list_plus, intergene_length, intergenic_records, size, "+")
+    else:
+        intergenic_records.append(
+            SeqRecord(
+                genbank_record.seq,
+                id="%s-ign-%d" % (genbank_record.name, 0),
+                description="%s %d-%d %s"
+                            % (genbank_record.name, len(genbank_record.seq), 0, "+"),
+            ))
+    if len(gene_list_minus) != 0:
+        size = get_intergene(genbank_record, gene_list_minus, intergene_length, intergenic_records, size, "-")
+    else:
+        intergenic_records.append(
+            SeqRecord(
+                reverse_complement(genbank_record.seq),
+                id="%s-ign-%d" % (genbank_record.name, 0),
+                description="%s %d-%d %s"
+                            % (genbank_record.name, len(genbank_record.seq), 0, "-"),
+            ))
+        size += len(genbank_record.seq)
+    print(size)
+    return intergenic_records, size
+
+
+def get_gene_features(genbank_record, gene_list_minus, gene_list_plus):
+    for feature in genbank_record.features:
+        if feature.type == "gene" and feature.location_operator is None:
+            mystart = feature.location.start.position
+            myend = feature.location.end.position
+            if feature.strand == -1:
+                gene_list_minus.append((mystart, myend, -1))
+            elif feature.strand == 1:
+                gene_list_plus.append((mystart, myend, 1))
+            else:
+                sys.stderr.write("No strand indicated %d-%d. Assuming +\n" % (mystart, myend))
+                gene_list_plus.append((mystart, myend, 1))
+
+
+def get_intergene(genbank_record, gene_list, intergene_length, intergenic_records, size, strand):
+    for i, pospair in enumerate(gene_list):
+        if i - 1 < 0:
+            last_end = 0
+        else:
+            last_end = gene_list[i - 1][1]
+        this_start = pospair[0]
+        if this_start - last_end >= intergene_length:
+            add_intergenic(genbank_record, i, intergenic_records, last_end, strand, this_start)
+        size += this_start - last_end
+    if len(gene_list) != 0:
+        add_intergenic(genbank_record, len(gene_list), intergenic_records, len(genbank_record.seq), strand,
+                       gene_list[len(gene_list) - 1][1])
+        size += len(genbank_record.seq) - gene_list[len(gene_list) - 1][1]
+    return size
+
+
+def add_intergenic(genbank_record, i, intergenic_records, last_end, strand, this_start):
+    intergene_seq = genbank_record.seq[last_end:this_start]
+    if strand == "-":
+        intergene_seq = reverse_complement(intergene_seq)
+    strand_string = strand
+    intergenic_records.append(
+        SeqRecord(
+            intergene_seq,
+            id="%s-ign-%d" % (genbank_record.name, i),
+            description="%s %d-%d %s"
+                        % (genbank_record.name, last_end + 1, this_start, strand_string),
+        )
+    )
