@@ -1,8 +1,6 @@
 from parsers.parser import Parser
-# from record.helpers import get_main_attributes
 from record.record import Record
 from records.helpers import create_main_attributes_dictionary_for_all_species
-import pandas as pd
 
 
 class Records:
