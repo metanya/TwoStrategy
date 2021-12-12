@@ -3,6 +3,8 @@ from records.records import Records
 
 if __name__ == '__main__':
     # species_dictionary = {"species_name1":"Refseq1" , "species_name2":"Refseq2",.....}
+    # species_names_dictionary = {"AL009126": "AL009126.3"}
+
     species_names_dictionary = {
         # "KM034562.1":"KM034562.1",
         # "NC_045512.2": "NC_045512.2", # cororna virus
@@ -42,9 +44,12 @@ if __name__ == '__main__':
     #parser = Parser()
 
     records = Records(species_names_dictionary.values()).records
+
     figures = Figures(records, ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"])
-    a = figures.get_mean()
-    print(a)
+    mean_and_std_of_types = figures.get_mean_and_std()
+    # print(mean_and_std_of_types)
+
+    figures.bar_chart_histogram(mean_and_std_of_types) # figure1, B
 
     '''
     for species in species_names_dictionary:
