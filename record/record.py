@@ -40,6 +40,7 @@ class Record:
         self.record_id = record_id
         self.create_genbank_file()
         record_content = self.get_record_content()
+        self.taxonomy = record_content.annotations['taxonomy']
         self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), record_content)
         self.get_main_attributes(record_content)
 
@@ -87,7 +88,7 @@ class Record:
         self.main_attributes_dictionary["genome_size"] = genome_size
         genes_counter_dictionary = Counter(self.df["type"])
 
-        assert_sum_of_genes(genes_counter_dictionary)
+        # assert_sum_of_genes(genes_counter_dictionary)
         self.main_attributes_dictionary.update(genes_counter_dictionary)
         genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
         self.main_attributes_dictionary["gene_length_in_genome"] = genes_seq_len

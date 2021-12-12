@@ -1,11 +1,10 @@
-# from record.helpers import get_main_attributes
-from record.record import Record
-from parsers.parser import Parser
+from figures.figures import Figures
 from records.records import Records
 
 if __name__ == '__main__':
     # species_dictionary = {"species_name1":"Refseq1" , "species_name2":"Refseq2",.....}
     species_names_dictionary = {
+        # "KM034562.1":"KM034562.1",
         # "NC_045512.2": "NC_045512.2", # cororna virus
         '''***Cyanophages:***'''
         # ------Moyviruses:------
@@ -43,6 +42,9 @@ if __name__ == '__main__':
     #parser = Parser()
 
     records = Records(species_names_dictionary.values()).records
+    figures = Figures(records, ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"])
+    a = figures.get_mean()
+    print(a)
 
     '''
     for species in species_names_dictionary:

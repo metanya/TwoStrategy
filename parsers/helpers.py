@@ -1,9 +1,4 @@
 import pandas as pd
-from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
-
-from utils import fileUtils
-
 
 def get_protein_gc_number(feature, seq):
     seq = seq[feature.location.start.position: feature.location.end.position]
