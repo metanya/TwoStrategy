@@ -35,9 +35,11 @@ def assert_number_of_intergenes_are_greater_than_genes(size_of_genes, size_of_in
 
 class Record:
 
-    def __init__(self, record_id, parser):
+    def __init__(self, record_id,record_family, parser):
+    #def __init__(self, record_id, record_family, parser):
         self.main_attributes_dictionary = {}
         self.record_id = record_id
+        self.record_family = record_family
         self.create_genbank_file()
         record_content = self.get_record_content()
         self.taxonomy = record_content.annotations['taxonomy']
@@ -84,9 +86,13 @@ class Record:
                 print("The file: {}.gb created".format(self.record_id))
 
     def get_main_attributes(self, record_content):
+        self.main_attributes_dictionary["name"]=self.record_id ##
+        self.main_attributes_dictionary["family"] = self.record_family###
+
         genome_size = self.df["length"][0]
         self.main_attributes_dictionary["genome_size"] = genome_size
         genes_counter_dictionary = Counter(self.df["type"])
+
 
         # assert_sum_of_genes(genes_counter_dictionary)
         self.main_attributes_dictionary.update(genes_counter_dictionary)
