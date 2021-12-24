@@ -41,10 +41,10 @@ class Record:
         self.record_id = record_id
         self.record_family = record_family
         self.create_genbank_file()
-        record_content = self.get_record_content()
-        self.taxonomy = record_content.annotations['taxonomy']
-        self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), record_content)
-        self.get_main_attributes(record_content)
+        self.record_content = self.get_record_content()
+        self.taxonomy = self.record_content.annotations['taxonomy']
+        self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), self.record_content)
+        self.get_main_attributes(self.record_content)
 
     def search(self):
         Entrez.email = ENTREZ_EMAIL
