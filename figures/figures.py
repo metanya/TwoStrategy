@@ -1,11 +1,13 @@
 import numpy
 import numpy as np
 import matplotlib.pyplot as plt
+import seaborn
 from scipy.stats.stats import pearsonr
 from collections import OrderedDict
 from matplotlib import colors
 from matplotlib.ticker import PercentFormatter
 import Bio.Data.CodonTable as Codon
+import pandas as pds
 
 
 class Figures:
@@ -53,7 +55,9 @@ class Figures:
         for record in self.records:
             if organism_type in record.taxonomy:
                 sizes = numpy.append(sizes, record.main_attributes_dictionary['genome_size'])
-        return sizes.mean(), sizes.std()
+        # assert len(sizes) == 0, "sizes list is empty"
+        if len(sizes) != 0:
+            return sizes.mean(), sizes.std()
 
     # -----
 
@@ -181,7 +185,41 @@ class Figures:
         return OrderedDict(sorted(frequency.items()))
 
     def get_correlation(self, dict_one: {}, dict_two):
-        return pearsonr([f[1] for f in list(dict_one.items())], [f[1] for f in list(dict_two.items())])
+        return pearsonr([f[1] for f in list(dict_one.items())], [f[1] for f in list(dict_two.items())])[0]
+
+    def stripchart(self, frequencies_dict):
+        species = []
+        frequencies = []
+        species_vs_species = []
+        correlation = []
+
+        for key, value in frequencies_dict.items():
+            species.append(
+                self.main_attributes_all_species.loc[self.main_attributes_all_species['name'] == key, 'family'][0])
+            frequencies.append(value)
+
+        for i in range(len(species) - 1):
+            for j in range(i + 1, len(species)):
+                species_vs_species.append(str(species[i]) + "+" + str(species[j]))
+                cor = self.get_correlation(frequencies[i], frequencies[j])
+                correlation.append(cor)
+
+        dict = {"species": species_vs_species,
+                "Correlation": correlation};
+        df = pds.DataFrame(data=dict);
+        print(df);
+        seaborn.stripplot(x="Correlation", y="species", data=df);
+        plt.show();
+
+        # # seaborn.stripplot( x="Correlation", y="between", hue=None, data=None, order=None, hue_order=None, jitter=True, dodge=True,
+        # #                   orient=None, color=None, palette=None, size=5, edgecolor='gray', linewidth=0, ax=None)
+
+        # dict = {"species": ["Myo-Myo", "Myo-Myo", "Myo-Myo", "Myo-Podo", "HLProch-Syne"],
+        #                     "Correlation": [0.5, 0.4, 0, 0.3, 0.6]};
+        # df = pds.DataFrame(data=dict);
+        # print(df);
+        # seaborn.stripplot(x="Correlation", y="species", data=df);
+        # plt.show();
 
 # 1. Get codon table
 # 2. get the start codon
