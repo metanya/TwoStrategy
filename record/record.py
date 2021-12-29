@@ -3,8 +3,12 @@ from collections import Counter
 
 from Bio import Entrez, SeqIO
 
-from record.helpers import get_interregions
-from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, GENES
+from .helpers import get_interregions
+from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, GENES, NUCLEOTIDE
+
+fields = {'name', 'family', 'genome_size', 'gene_length_in_genome', 'percentage_gene_length_in_genome', 'GC_in_genome',
+          'percentage_GC_in_genes', 'intergene_length_in_genome', 'percentage_intergene_length_in_genome',
+          'GC_in_intergene'}
 
 
 def assert_gb_folder():
@@ -35,28 +39,28 @@ def assert_number_of_intergenes_are_greater_than_genes(size_of_genes, size_of_in
 
 class Record:
 
-    def __init__(self, record_id,record_family, parser):
-    #def __init__(self, record_id, record_family, parser):
-        self.main_attributes_dictionary = {}
+    def __init__(self, record_id, record_family, parser):
+        print('Creating record with id: ' + record_id)
         self.record_id = record_id
         self.record_family = record_family
         self.create_genbank_file()
-        self.record_content = self.get_record_content()
-        self.taxonomy = self.record_content.annotations['taxonomy']
-        self.df = parser.get_data_frame('data\\csv\\{}.csv'.format(record_id), self.record_content)
-        self.get_main_attributes(self.record_content)
+        record_content = self.get_record_content()
+        self.taxonomy = record_content.annotations['taxonomy']
+        self.record_data = parser.get_record_data('data\\csv\\{}.csv'.format(record_id), record_content)
+        self.main_attributes = self.get_main_attributes(record_content)
+        self.seq = record_content.seq.upper()
 
     def search(self):
         Entrez.email = ENTREZ_EMAIL
-        handle = Entrez.esearch(db="nucleotide", term=self.record_id)
+        handle = Entrez.esearch(db=NUCLEOTIDE, term=self.record_id)
         record = Entrez.read(handle)
         a = record["IdList"][0]
 
-        record = Entrez.read(Entrez.elink(dbfrom="nucleotide", id=a))
+        record = Entrez.read(Entrez.elink(dbfrom=NUCLEOTIDE, id=a))
         print(record)
 
     def get_genbank_record(self):
-        with Entrez.efetch(db="nucleotide", id=self.record_id, rettype="gb", retmode="full",
+        with Entrez.efetch(db=NUCLEOTIDE, id=self.record_id, rettype="gb", retmode="full",
                            usehistory="true", style='gbwithparts') as handle:
             list_of_records = []
             for record in SeqIO.parse(handle, "genbank"):
@@ -79,43 +83,35 @@ class Record:
         if not os.path.exists(GENE_BANK_FOLDER + '{}.gb'.format(self.record_id)):  # if the file not exists
             Entrez.email = ENTREZ_EMAIL
 
-            with Entrez.efetch(db="nucleotide", id=self.record_id, rettype="gbwithparts",
+            with Entrez.efetch(db=NUCLEOTIDE, id=self.record_id, rettype="gbwithparts",
                                retmode="text") as handle:  # ,  term=searchTerm
                 with open(GENE_BANK_FOLDER + '{}.gb'.format(self.record_id), "w") as out_handle:
                     out_handle.write(handle.read())
                 print("The file: {}.gb created".format(self.record_id))
 
     def get_main_attributes(self, record_content):
-        self.main_attributes_dictionary["name"]=self.record_id ##
-        self.main_attributes_dictionary["family"] = self.record_family###
+        genome_size = self.record_data["length"][0]
 
-        genome_size = self.df["length"][0]
-        self.main_attributes_dictionary["genome_size"] = genome_size
-        genes_counter_dictionary = Counter(self.df["type"])
-
-
-        # assert_sum_of_genes(genes_counter_dictionary)
-        self.main_attributes_dictionary.update(genes_counter_dictionary)
-        genes_seq_len = self.df.loc[self.df['type'] == 'gene', 'length'].sum()
-        self.main_attributes_dictionary["gene_length_in_genome"] = genes_seq_len
+        genes_seq_len = self.record_data.loc[self.record_data['type'] == 'gene', 'length'].sum()
         gene_length_percent_in_genome = (genes_seq_len / (genome_size * 2)) * 100
         assert_percentage(gene_length_percent_in_genome)
-        self.main_attributes_dictionary["%_gene_length_in_genome"] = gene_length_percent_in_genome
-
-        assert_percentage(self.df["gc_percentage"][0])
-        self.main_attributes_dictionary["%_GC_in_genome"] = self.df["gc_percentage"][0]  # to find
-
-        GC_in_genes_number = self.df.loc[self.df['type'] == 'gene', 'gc_number'].sum()
+        assert_percentage(self.record_data["gc_percentage"][0])
+        GC_in_genes_number = self.record_data.loc[self.record_data['type'] == 'gene', 'gc_number'].sum()
         percentage_of_GC_in_genes = (GC_in_genes_number / genes_seq_len) * 100
         assert_percentage(percentage_of_GC_in_genes)
-        self.main_attributes_dictionary["%_GC_in_genes"] = percentage_of_GC_in_genes
-
         intergenes, length_of_intergenes = get_interregions(record_content)
-        # assert_number_of_intergenes_are_greater_than_genes(genes_counter_dictionary['gene'], len(intergenes))
-
-        self.main_attributes_dictionary["intergene_length_in_genome"] = length_of_intergenes
-        self.main_attributes_dictionary["%_intergene_length_in_genome"] = (length_of_intergenes / (
-                genome_size * 2)) * 100
         length_of_intergenes_gc = sum(get_protein_gc_number(intergene.seq.upper()) for intergene in intergenes)
-        self.main_attributes_dictionary["%_GC_in_intergene"] = (length_of_intergenes_gc
-                                                                   / length_of_intergenes) * 100
+
+        main_attributes = {"name": self.record_id, "family": self.record_family, "genome_size": genome_size,
+                           "gene_length_in_genome": genes_seq_len,
+                           "%_gene_length_in_genome": gene_length_percent_in_genome,
+                           "%_GC_in_genome": self.record_data["gc_percentage"][0],
+                           "%_GC_in_genes": percentage_of_GC_in_genes,
+                           "intergene_length_in_genome": length_of_intergenes,
+                           "%_intergene_length_in_genome": (length_of_intergenes / (genome_size * 2)) * 100,
+                           "%_GC_in_intergene": (length_of_intergenes_gc / length_of_intergenes) * 100}
+
+        genes_counter_dictionary = Counter(self.record_data["type"])
+        fields.update(genes_counter_dictionary)
+
+        return main_attributes

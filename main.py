@@ -40,8 +40,8 @@ def species_names_dictionary_old():
     }
 
 
-def species_names_dictionary():
-    # species_names_dictionary = {{'virus1':'virus1 family'},{'virus2':'virus1 family'},....}
+def species():
+    print('Creting species.')
     return {
         # "KM034562.1":"KM034562.1",
         # "NC_045512.2": "NC_045512.2", # cororna virus
@@ -68,19 +68,20 @@ def species_names_dictionary():
         "NC_008819.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL1A], circular CON 10-OCT-2021 !
         "NC_007335.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL2A], circular BCT 29-NOV-2007
         "NC_005042.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus SS120], circular CON 10-OCT-2021 !
-        # "NC_009976.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9211], circular CON 10-OCT-2021 !
+        # "NC_009976.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9211],
+        # circular CON 10-OCT-2021 !
         "NC_008820.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9303], circular CON 25-NOV-2016 !
-        # "NC_005071.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9313], circular CON 13-DEC-2020 !
+        # "NC_005071.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9313],
+        # circular CON 13-DEC-2020 !
 
         # ------Synechococcus:------
         "NC_005070.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_8102], circular CON 10-OCT-2021 !
         "NC_009481.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_7803], circular CON 17-APR-2017 !
-
     }
 
 
-def viruses_and_hosts_they_infect():
-    # viruses_and_hosts_they_infect = {'virus1':['infected1','infected2'],'virus2':['infected1','infected2'],....}
+def viruses_and_hosts():
+    print('Creting viruses and hosts.')
     return {
         # '''***Cyanophages:***'''
         # ------Moyviruses:------
@@ -98,21 +99,20 @@ def viruses_and_hosts_they_infect():
     }
 
 
-def records(dictionary):
-    records_obj = Records(dictionary)
-    records = records_obj.records
-    main_attributes_all_species = records_obj.df_main_attributes_for_all_species
-    return records_obj, records, main_attributes_all_species
+def get_records(dictionary):
+    print('Create records of species.')
+    r = Records(dictionary)
+    return r.records, r.attributes
 
 
-def manageFigures(records_obj, viruses_and_hosts_they_infect):
+def manageFigures(records, attributes, viruses_and_hosts_they_infect):
     frequencies = {}
-    figures = Figures(records_obj, ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"],
-                      viruses_and_hosts_they_infect)
+    types = ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"]
+    figures = Figures()
     x = figures.get_codon_table(11)
-    for record in records_obj.records:
-        start_codon = figures.get_start_codon(record.record_content.seq, x)
-        codons = figures.get_frequency_of_codons(start_codon, record.record_content.seq)
+    for record in records:
+        start_codon = figures.get_start_codon(record.seq, x)
+        codons = figures.get_frequency_of_codons(start_codon, record.seq)
         # codons_vector = figures.get_vector_of_dictionary(codons)
         frequencies[record.record_id] = codons
         # !#frequencies[record.record_family] = codons
@@ -124,19 +124,21 @@ def manageFigures(records_obj, viruses_and_hosts_they_infect):
     # cor = figures.get_correlation(values[0], values[1])
     # #!#specieVsspecie=keys[0]+"-"+keys[1]
     # print(cor)
-    # mean_and_std_of_types = figures.get_mean_and_std()
+    mean_and_std_of_types = figures.get_mean_and_std(records, types)
     #
-    figures.stripchart(frequencies)
+    figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
+                                '(B) Average genome sizes of Podoviruses,'
+                                ' Myoviruses, Prochlorococcus and Synechococcus',
+                                'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
+    figures.stripchart(frequencies, attributes)
 
-
-# figures.bar_chart_histogram(mean_and_std_of_types)  # figure1, B
-#  figures.scatter_plot()  # mean_and_std_of_types, viruses_and_hosts_they_infect) # figure1, A
+    figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
+    # mean_and_std_of_types, viruses_and_hosts_they_infect) # figure1, A
 
 
 if __name__ == '__main__':
-    species_names_dictionary = species_names_dictionary()
-    viruses_and_hosts_they_infect = viruses_and_hosts_they_infect()
+    species_names_dictionary = species()
+    viruses_and_hosts_they_infect = viruses_and_hosts()
+    records, attributes = get_records(species_names_dictionary)
 
-    records_obj, records, main_attributes_all_species = records(species_names_dictionary)
-
-    manageFigures(records_obj, viruses_and_hosts_they_infect)
+    manageFigures(records, attributes, viruses_and_hosts_they_infect)
