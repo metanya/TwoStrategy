@@ -60,5 +60,4 @@ def get_interregions(genbank_record, intergene_length=1):
                 )
             )
             size += this_start - last_end
-    print(size)
     return intergenic_records
