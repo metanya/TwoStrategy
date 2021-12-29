@@ -6,9 +6,9 @@ from Bio import Entrez, SeqIO
 from .helpers import get_interregions
 from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, GENES, NUCLEOTIDE
 
-fields = {'name', 'family', 'genome_size', 'gene_length_in_genome', 'percentage_gene_length_in_genome', 'GC_in_genome',
-          'percentage_GC_in_genes', 'intergene_length_in_genome', 'percentage_intergene_length_in_genome',
-          'GC_in_intergene'}
+fields = {'name', 'family', 'genome_size', 'gene_length_in_genome', 'percentage_gene_length_in_genome',
+          'percentage_GC_in_genome', 'percentage_GC_in_genes', 'intergene_length_in_genome',
+          'percentage_intergene_length_in_genome', 'percentage_GC_in_intergene'}
 
 
 def assert_gb_folder():
@@ -101,17 +101,17 @@ class Record:
         assert_percentage(percentage_of_GC_in_genes)
         intergenes, length_of_intergenes = get_interregions(record_content)
         length_of_intergenes_gc = sum(get_protein_gc_number(intergene.seq.upper()) for intergene in intergenes)
+        genes_counter_dictionary = Counter(self.record_data["type"])
 
         main_attributes = {"name": self.record_id, "family": self.record_family, "genome_size": genome_size,
                            "gene_length_in_genome": genes_seq_len,
-                           "%_gene_length_in_genome": gene_length_percent_in_genome,
-                           "%_GC_in_genome": self.record_data["gc_percentage"][0],
-                           "%_GC_in_genes": percentage_of_GC_in_genes,
+                           "percentage_gene_length_in_genome": gene_length_percent_in_genome,
+                           "percentage_GC_in_genome": self.record_data["gc_percentage"][0],
+                           "percentage_GC_in_genes": percentage_of_GC_in_genes,
                            "intergene_length_in_genome": length_of_intergenes,
-                           "%_intergene_length_in_genome": (length_of_intergenes / (genome_size * 2)) * 100,
-                           "%_GC_in_intergene": (length_of_intergenes_gc / length_of_intergenes) * 100}
-
-        genes_counter_dictionary = Counter(self.record_data["type"])
+                           "percentage_intergene_length_in_genome": (length_of_intergenes / (genome_size * 2)) * 100,
+                           "percentage_GC_in_intergene": (length_of_intergenes_gc / length_of_intergenes) * 100}
         fields.update(genes_counter_dictionary)
+        main_attributes.update(genes_counter_dictionary)
 
         return main_attributes

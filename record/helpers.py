@@ -37,7 +37,6 @@ def get_interregions(genbank_record, intergene_length=1):
                             % (genbank_record.name, len(genbank_record.seq), 0, "-"),
             ))
         size += len(genbank_record.seq)
-    print(size)
     return intergenic_records, size
 
 

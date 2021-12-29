@@ -202,7 +202,6 @@ class Figures:
 
         data = {"species": species_vs_species, "Correlation": correlation}
         df = pds.DataFrame(data=data)
-        print(df)
         seaborn.stripplot(x="Correlation", y="species", data=df)
         plt.show()
 

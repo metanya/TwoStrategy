@@ -113,17 +113,7 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
     for record in records:
         start_codon = figures.get_start_codon(record.seq, x)
         codons = figures.get_frequency_of_codons(start_codon, record.seq)
-        # codons_vector = figures.get_vector_of_dictionary(codons)
         frequencies[record.record_id] = codons
-        # !#frequencies[record.record_family] = codons
-        # !#families.append(record.family)
-    # values = list(frequencies.values())
-    # #!#keys = list(frequencies.keys())
-    # #!#for
-    #     #!#for
-    # cor = figures.get_correlation(values[0], values[1])
-    # #!#specieVsspecie=keys[0]+"-"+keys[1]
-    # print(cor)
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
     #
     figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
@@ -131,9 +121,7 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
                                 ' Myoviruses, Prochlorococcus and Synechococcus',
                                 'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
     figures.stripchart(frequencies, attributes)
-
     figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
-    # mean_and_std_of_types, viruses_and_hosts_they_infect) # figure1, A
 
 
 if __name__ == '__main__':
