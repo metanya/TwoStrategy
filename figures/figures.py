@@ -173,7 +173,7 @@ class Figures:
         return start_codon
 
     @staticmethod
-    def get_frequency_of_codons(start_codon, record_seq):
+    def get_frequency_of_codons(start_codon, record_seq):#only on the coding seq
         print('Get codons frequency')
         frequency = OrderedDict()
         for iteration in range(start_codon, len(record_seq), 3):
@@ -185,24 +185,50 @@ class Figures:
                     frequency[codon] = 1
         return OrderedDict(sorted(frequency.items()))
 
-    def stripchart(self, frequencies_dict, main_attributes):
+    def stripchart(self, frequencies_dict, main_attributes,viruses_and_hosts_they_infect):
         species = []
         frequencies = []
         species_vs_species = []
         correlation = []
-
+        markers = []
+        infecting=[]
         for key, value in frequencies_dict.items():
             species.append(main_attributes.loc[main_attributes['name'] == key, 'family'][0])
             frequencies.append(value)
+            if species[-1] in ["Myoviridae","Podoviridae"]:#if the item is virus
+                infecting.append(viruses_and_hosts_they_infect[key])#add the hosts it infect
+            else:
+                infecting.append([""])
 
         for i in range(len(species) - 1):
             for j in range(i + 1, len(species)):
-                species_vs_species.append(str(species[i]) + "+" + str(species[j]))
-                correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
+                if species[i] in ["Myoviridae", "Podoviridae"]:  # if the item is virus
+                    if "LL-Prochlorococcus" in infecting[i] | "HL-Prochlorococcus" in infecting[i]:
+                        species_vs_species.append("Proch-infecting "+str(species[i]) + "+" + str(species[j]))
+                        correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
+                    if "Synechococcus" in infecting[i]:
+                        species_vs_species.append("Syne-infecting "+str(species[i]) + "+" + str(species[j]))
+                        correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
+                else:
+                    species_vs_species.append(str(species[i]) + "+" + str(species[j]))
+                    correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
 
         data = {"species": species_vs_species, "Correlation": correlation}
         df = pds.DataFrame(data=data)
-        seaborn.stripplot(x="Correlation", y="species", data=df)
+##########
+        proVSpro_podoVSpro_myoVSpro = df[(df['species'] == 'Prochlorococcus+Prochlorococcus') | (df['species'] == 'Syne-infecting Prochlorococcus+Prochlorococcus') | (df['species'] == 'Proch-infecting Myoviridae+Prochlorococcus')]
+        colors = ["none","red","blue"]
+        seaborn.stripplot(x="Correlation", y="species", data=df, dodge=True,palette=colors, marker="^",linewidth=1)
+
+        # m = sns.stripplot('size', 'total_bill', hue='day',
+        #                   marker='^', data=thu_fri_sat, jitter=0.1,
+        #                   palette=sns.xkcd_palette(colors),
+        #                   split=True, linewidth=2, edgecolor="gray")
+
+##########
+
+        #seaborn.set(style='whitegrid')
+        #seaborn.stripplot(x="Correlation", y="species", data=df, dodge=True,palette=colors, marker="^",linewidth=1)
         plt.show()
 
     # @staticmethod

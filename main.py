@@ -91,7 +91,7 @@ def viruses_and_hosts():
         "NC_008296.1": ['Synechococcus', 'LL-Prochlorococcus', 'HL-Prochlorococcus'],
         # [Phage: Myoviridae Syn9], circular PHG 28-NOV-2007
         "FM207411.1": ['Synechococcus'],  # [Phage: Myoviridae S_RSM4], circular PHG 22-SEP-2009
-        "NC_006820.1": ['Synechococcus2'],  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
+        "NC_006820.1": ['Synechococcus'],  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
         # ------Podoviruses:------
         "NC_006882.1": ['HL-Prochlorococcus'],  # [Phage: Podoviridae P_SSP7], circular PHG 19-NOV-2010
         "NC_009531.1": ['Synechococcus'],  # [Phage: Podoviridae Syn5], linear   PHG 20-DEC-2020 !
@@ -115,13 +115,13 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         codons = figures.get_frequency_of_codons(start_codon, record.seq)
         frequencies[record.record_id] = codons
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
-    #
-    figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
-                                '(B) Average genome sizes of Podoviruses,'
-                                ' Myoviruses, Prochlorococcus and Synechococcus',
-                                'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
-    figures.stripchart(frequencies, attributes)
-    figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
+
+    #figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
+                                # '(B) Average genome sizes of Podoviruses,'
+                                # ' Myoviruses, Prochlorococcus and Synechococcus',
+                                # 'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
+    figures.stripchart(frequencies, attributes ,viruses_and_hosts_they_infect)
+    #figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
 
 
 if __name__ == '__main__':

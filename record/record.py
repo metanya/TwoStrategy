@@ -49,6 +49,8 @@ class Record:
         self.record_data = parser.get_record_data('data\\csv\\{}.csv'.format(record_id), record_content)
         self.main_attributes = self.get_main_attributes(record_content)
         self.seq = record_content.seq.upper()
+        #self.cds_sq = record_content.seq
+
 
     def search(self):
         Entrez.email = ENTREZ_EMAIL
