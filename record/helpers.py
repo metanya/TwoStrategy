@@ -2,6 +2,7 @@ import sys
 
 from Bio.Seq import reverse_complement
 from Bio.SeqRecord import SeqRecord
+import Bio.Data.CodonTable as Codon
 
 
 # Copyright(C) 2009 Iddo Friedberg & Ian MC Fleming
@@ -119,6 +120,7 @@ def create_data_dictionary(record_gb):
     # record_gb.get_interregions()
     for feature in record_gb.features:
         trans_table = ""
+        start_codon = ""
         translation = ""
         gene = ""
         locus_tag = ""
@@ -127,6 +129,7 @@ def create_data_dictionary(record_gb):
         product = ""
         if 'transl_table' in feature.qualifiers:
             trans_table = feature.qualifiers['transl_table'][0]
+            start_codon = get_start_codon(seq[feature.location.start:feature.location.end], trans_table)
         if 'translation' in feature.qualifiers:
             translation = feature.qualifiers['translation'][0]
             positive, negative = positive_negative_amino_acids(translation)
@@ -143,6 +146,8 @@ def create_data_dictionary(record_gb):
         features[name] = {"start": feature.location.start,
                           "end": feature.location.end,
                           "length": feature.location.end - feature.location.start,
+                          "start_codon": start_codon,
+                          "seq": seq[feature.location.start:feature.location.end],
                           "type": feature.type,
                           "trans_table": trans_table,
                           "translation": translation,
@@ -156,3 +161,19 @@ def create_data_dictionary(record_gb):
                           "product": product}
 
     return features
+
+@staticmethod
+def get_codon_table(table_id: int):
+    return Codon.generic_by_id[int(table_id)]
+
+def get_start_codon(seq_part, trans_table):
+    start_codon = -1
+    codon_table = get_codon_table(trans_table)
+    if seq_part[0:3] in codon_table.start_codons:
+        start_codon = 0
+    elif seq_part[1:4] in codon_table.start_codons:
+        start_codon = 1
+    elif seq_part[2:5] in codon_table.start_codons:
+        start_codon = 2
+    print(f'Start codon is: {start_codon}')
+    return start_codon

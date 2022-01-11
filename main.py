@@ -1,5 +1,6 @@
 from figures.figures import Figures
 from records.records import Records
+import pandas as pd
 
 
 def species_names_dictionary_old():
@@ -111,8 +112,15 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
     figures = Figures()
     x = figures.get_codon_table(11)
     for record in records:
-        start_codon = figures.get_start_codon(record.seq, x)
-        codons = figures.get_frequency_of_codons(start_codon, record.seq)
+        # start_codon = figures.get_start_codon(record.seq, x)
+        # record contains list of all the genes
+        # #1. get list of the CDS sequences and there start codons
+        #  2,. get frequency of codons  a) For cds in CDS{
+        #                                    add to frequency dict the cds frequency of the seq starting from the start codon
+        #                                #                                   }
+        cds_list = record.record_data.loc[record.record_data['type'] == 'CDS', "seq"]
+        start_codon_list = record.record_data.loc[record.record_data['type'] == 'CDS', "start_codon"]
+        codons = figures.get_frequency_of_codons(cds_list, start_codon_list)
         frequencies[record.record_id] = codons
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
     #
