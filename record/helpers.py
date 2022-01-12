@@ -127,9 +127,14 @@ def create_data_dictionary(record_gb):
         positive = -1
         negative = -1
         product = ""
+        strand = feature.location.strand
+        # print(str(feature.location.start) + " " + feature.type)
+        # print(strand)
+        feature_seq = seq[feature.location.start:feature.location.end]
+        feature_seq = feature_seq if strand == 1 else reverse_complement(feature_seq)
         if 'transl_table' in feature.qualifiers:
             trans_table = feature.qualifiers['transl_table'][0]
-            start_codon = get_start_codon(seq[feature.location.start:feature.location.end], trans_table)
+            start_codon = get_start_codon(feature_seq, trans_table)
         if 'translation' in feature.qualifiers:
             translation = feature.qualifiers['translation'][0]
             positive, negative = positive_negative_amino_acids(translation)
@@ -155,16 +160,17 @@ def create_data_dictionary(record_gb):
                           "locus_tag": locus_tag,
                           "gc_number": gc_number,
                           "gc_percentage": gc_percentage,
-                          "strand": feature.location.strand,
+                          "strand": strand,
                           "amino_acid_positive_percentage": positive,
                           "amino_acid_negative_percentage": negative,
                           "product": product}
 
     return features
 
-@staticmethod
+
 def get_codon_table(table_id: int):
     return Codon.generic_by_id[int(table_id)]
+
 
 def get_start_codon(seq_part, trans_table):
     start_codon = -1
@@ -175,5 +181,7 @@ def get_start_codon(seq_part, trans_table):
         start_codon = 1
     elif seq_part[2:5] in codon_table.start_codons:
         start_codon = 2
-    print(f'Start codon is: {start_codon}')
+    # if start_codon == -1:
+    #     print("ahahahahahahahahah")
+    # print(f'Start codon is: {start_codon}')
     return start_codon

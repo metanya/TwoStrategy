@@ -24,7 +24,7 @@ def species_names_dictionary_old():
         # - - - - - - HL-Prochlorococcus:
         "MED4": "NC_005072.1",  # circular CON 10-OCT-2021  !!!!!!!!!!!!!
         "MIT_9515": "NC_008817.1",  # circular CON 10-OCT-2021 !!!!!!!!!!!!!
-        "MIT_9312": "NC_007577.1",  # circular CON 10-OCT-2021 !!!!!!!!!!!!!
+        # "MIT_9312": "NC_007577.1",  # circular CON 10-OCT-2021 !!!!!!!!!!!!!
         "MIT_9215": "NC_009840.1",  # circular CON 10-OCT-2021 !!!!!!!!!!!!!
         # - - - - - - LL-Prochlorococcus:
         "NATL1A": "NC_008819.1",  # circular CON 10-OCT-2021 !!!!!!!!!!!!!
@@ -118,7 +118,7 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         #  2,. get frequency of codons  a) For cds in CDS{
         #                                    add to frequency dict the cds frequency of the seq starting from the start codon
         #                                #                                   }
-        cds_list = record.record_data.loc[record.record_data['type'] == 'CDS', "seq"]
+        cds_list = record.record_data.loc[record.record_data['type'] == 'CDS', "seq"].values.tolist()
         start_codon_list = record.record_data.loc[record.record_data['type'] == 'CDS', "start_codon"]
         codons = figures.get_frequency_of_codons(cds_list, start_codon_list)
         frequencies[record.record_id] = codons
