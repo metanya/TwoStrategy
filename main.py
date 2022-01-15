@@ -48,11 +48,11 @@ def species():
         # "NC_045512.2": "NC_045512.2", # cororna virus
         # '''***Cyanophages:***'''
         # ------Moyviruses:------
-        "NC_006884.1": "Myoviridae",  # [Phage: Myoviridae P-SSM4], circular PHG 26-MAR-2010
-        "NC_006883.1": "Myoviridae",  # [Phage: Myoviridae P_SSM2], circular PHG 26-MAR-2010
-        "NC_008296.1": "Myoviridae",  # [Phage: Myoviridae Syn9], circular PHG 28-NOV-2007
-        "FM207411.1": "Myoviridae",  # [Phage: Myoviridae S_RSM4], circular PHG 22-SEP-2009
-        "NC_006820.1": "Myoviridae",  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
+        # "NC_006884.1": "Myoviridae",  # [Phage: Myoviridae P-SSM4], circular PHG 26-MAR-2010
+        # "NC_006883.1": "Myoviridae",  # [Phage: Myoviridae P_SSM2], circular PHG 26-MAR-2010
+        # "NC_008296.1": "Myoviridae",  # [Phage: Myoviridae Syn9], circular PHG 28-NOV-2007
+        # "FM207411.1": "Myoviridae",  # [Phage: Myoviridae S_RSM4], circular PHG 22-SEP-2009
+        # "NC_006820.1": "Myoviridae",  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
         # # ------Podoviruses:------
         "NC_006882.1": "Podoviridae",  # [Phage: Podoviridae P_SSP7], circular PHG 19-NOV-2010
         "NC_009531.1": "Podoviridae",  # [Phage: Podoviridae Syn5], linear   PHG 20-DEC-2020 !
@@ -61,23 +61,23 @@ def species():
         # '''***Cyanobacteria:***'''
         # ------Prochlorococcus:------
         # - - - - - - HL-Prochlorococcus:
-        "NC_005072.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MED4], circular CON 10-OCT-2021  !
-        "NC_008817.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9515], circular CON 10-OCT-2021 !
-        "NC_007577.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9312], circular CON 10-OCT-2021 !
-        "NC_009840.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9215], circular CON 10-OCT-2021 !
-        # - - - - - - LL-Prochlorococcus:
-        "NC_008819.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL1A], circular CON 10-OCT-2021 !
-        "NC_007335.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL2A], circular BCT 29-NOV-2007
-        "NC_005042.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus SS120], circular CON 10-OCT-2021 !
+        # "NC_005072.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MED4], circular CON 10-OCT-2021  !
+        # "NC_008817.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9515], circular CON 10-OCT-2021 !
+        # "NC_007577.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9312], circular CON 10-OCT-2021 !
+        # "NC_009840.1": "HL-Prochlorococcus",  # [Cyanobacteria: HL-Prochlorococcus MIT_9215], circular CON 10-OCT-2021 !
+        # # - - - - - - LL-Prochlorococcus:
+        # "NC_008819.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL1A], circular CON 10-OCT-2021 !
+        # "NC_007335.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL2A], circular BCT 29-NOV-2007
+        # "NC_005042.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus SS120], circular CON 10-OCT-2021 !
         # "NC_009976.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9211],
         # circular CON 10-OCT-2021 !
-        "NC_008820.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9303], circular CON 25-NOV-2016 !
+        # "NC_008820.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9303], circular CON 25-NOV-2016 !
         # "NC_005071.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9313],
         # circular CON 13-DEC-2020 !
 
         # ------Synechococcus:------
-        "NC_005070.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_8102], circular CON 10-OCT-2021 !
-        "NC_009481.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_7803], circular CON 17-APR-2017 !
+        # "NC_005070.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_8102], circular CON 10-OCT-2021 !
+        # "NC_009481.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_7803], circular CON 17-APR-2017 !
     }
 
 
@@ -124,12 +124,12 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         frequencies[record.record_id] = codons
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
     #
-    figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
-                                '(B) Average genome sizes of Podoviruses,'
-                                ' Myoviruses, Prochlorococcus and Synechococcus',
-                                'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
-    figures.stripchart(frequencies, attributes)
-    figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
+    # figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
+    #                             '(B) Average genome sizes of Podoviruses,'
+    #                             ' Myoviruses, Prochlorococcus and Synechococcus',
+    #                             'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
+    figures.stripchart(frequencies, attributes, x.stop_codons)
+    # figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
 
 
 if __name__ == '__main__':

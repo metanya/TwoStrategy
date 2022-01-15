@@ -186,11 +186,15 @@ class Figures:
                         frequency[codon] = 1
         return OrderedDict(sorted(frequency.items()))
 
-    def stripchart(self, frequencies_dict, main_attributes):
+    def stripchart(self, frequencies_dict, main_attributes, stop_codons):
         species = []
         frequencies = []
         species_vs_species = []
         correlation = []
+
+        for stop_codon in stop_codons:
+            for frequency_dict in frequencies_dict.values():
+                frequency_dict.pop(stop_codon, None)
 
         for key, value in frequencies_dict.items():
             species.append(main_attributes.loc[main_attributes['name'] == key, 'family'][0])
@@ -204,6 +208,7 @@ class Figures:
         data = {"species": species_vs_species, "Correlation": correlation}
         df = pds.DataFrame(data=data)
         seaborn.stripplot(x="Correlation", y="species", data=df)
+        plt.grid(color='green', linestyle='--', linewidth=0.5)
         plt.show()
 
     # @staticmethod

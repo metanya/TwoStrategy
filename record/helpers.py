@@ -181,7 +181,14 @@ def get_start_codon(seq_part, trans_table):
         start_codon = 1
     elif seq_part[2:5] in codon_table.start_codons:
         start_codon = 2
-    # if start_codon == -1:
-    #     print("ahahahahahahahahah")
-    # print(f'Start codon is: {start_codon}')
+    else:
+        start_codon = get_abnormal_start_codon(seq_part, codon_table.start_codons)
+    print(start_codon)
     return start_codon
+
+
+def get_abnormal_start_codon(seq_part, start_codons):
+    for i in range(len(seq_part) - 2):
+        if seq_part[i: i + 2] in start_codons:
+            return i
+    return None
