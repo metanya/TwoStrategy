@@ -116,12 +116,17 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         frequencies[record.record_id] = codons
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
 
-    #figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
-                                # '(B) Average genome sizes of Podoviruses,'
-                                # ' Myoviruses, Prochlorococcus and Synechococcus',
-                                # 'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
-    figures.stripchart(frequencies, attributes ,viruses_and_hosts_they_infect)
-    #figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
+    # figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
+    # '(B) Average genome sizes of Podoviruses,'
+    # ' Myoviruses, Prochlorococcus and Synechococcus',
+    # 'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
+    # figures.stripchart(frequencies, attributes ,viruses_and_hosts_they_infect)
+    # figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
+
+    figures.test_stripchart(
+        ["Myoviridae+Myoviridae", "Podoviridae+Podoviridae", "HL-Prochlorococcus+HL-Prochlorococcus",
+         "LL-Prochlorococcus+LL-Prochlorococcus", "Synechococcus+Synechococcus"], frequencies, attributes,
+        viruses_and_hosts_they_infect)
 
 
 if __name__ == '__main__':
