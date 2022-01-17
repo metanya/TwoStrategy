@@ -183,7 +183,6 @@ def get_start_codon(seq_part, trans_table):
         start_codon = 2
     else:
         start_codon = get_abnormal_start_codon(seq_part, codon_table.start_codons)
-    print(start_codon)
     return start_codon
 
 

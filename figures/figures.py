@@ -176,14 +176,15 @@ class Figures:
     def get_frequency_of_codons(cds_list, start_codon_list):
         print('Get codons frequency')
         frequency = OrderedDict()
-        for index,cds in enumerate(cds_list):
-            for iteration in range(start_codon_list[index], len(cds), 3):
-                codon = cds[iteration: iteration + 3]
-                if codon in frequency:
-                    frequency[codon] += 1
-                else:
-                    if len(codon) == 3:
-                        frequency[codon] = 1
+        for index, cds in enumerate(cds_list):
+            if start_codon_list[index] is not None:  # when abnormal
+                for iteration in range(start_codon_list[index], len(cds), 3):
+                    codon = cds[iteration: iteration + 3]
+                    if codon in frequency:
+                        frequency[codon] += 1
+                    else:
+                        if len(codon) == 3:
+                            frequency[codon] = 1
         return OrderedDict(sorted(frequency.items()))
 
     def stripchart(self, frequencies_dict, main_attributes, stop_codons):
