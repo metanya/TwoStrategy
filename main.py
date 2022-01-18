@@ -69,10 +69,10 @@ def species():
         "NC_008819.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL1A], circular CON 10-OCT-2021 !
         "NC_007335.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus NATL2A], circular BCT 29-NOV-2007
         "NC_005042.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus SS120], circular CON 10-OCT-2021 !
-        # "NC_009976.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9211],
+        "NC_009976.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9211],
         # circular CON 10-OCT-2021 !
         "NC_008820.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9303], circular CON 25-NOV-2016 !
-        # "NC_005071.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9313],
+        "NC_005071.1": "LL-Prochlorococcus",  # [Cyanobacteria: LL-Prochlorococcus MIT_9313],
         # circular CON 13-DEC-2020 !
 
         # ------Synechococcus:------
@@ -92,7 +92,7 @@ def viruses_and_hosts():
         "NC_008296.1": ['Synechococcus', 'LL-Prochlorococcus', 'HL-Prochlorococcus'],
         # [Phage: Myoviridae Syn9], circular PHG 28-NOV-2007
         "FM207411.1": ['Synechococcus'],  # [Phage: Myoviridae S_RSM4], circular PHG 22-SEP-2009
-        "NC_006820.1": ['Synechococcus2'],  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
+        "NC_006820.1": ['Synechococcus'],  # [Phage: Myoviridae S_PM2], circular PHG 11-OCT-2021 !
         # ------Podoviruses:------
         "NC_006882.1": ['HL-Prochlorococcus'],  # [Phage: Podoviridae P_SSP7], circular PHG 19-NOV-2010
         "NC_009531.1": ['Synechococcus'],  # [Phage: Podoviridae Syn5], linear   PHG 20-DEC-2020 !
@@ -112,6 +112,7 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
     figures = Figures()
     x = figures.get_codon_table(11)
     for record in records:
+        print(record.record_id)
         # start_codon = figures.get_start_codon(record.seq, x)
         # record contains list of all the genes
         # #1. get list of the CDS sequences and there start codons
@@ -119,7 +120,7 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         #                                    add to frequency dict the cds frequency of the seq starting from the start codon
         #                                #                                   }
         cds_list = record.record_data.loc[record.record_data['type'] == 'CDS', "seq"].values.tolist()
-        start_codon_list = record.record_data.loc[record.record_data['type'] == 'CDS', "start_codon"].values.tolist()
+        start_codon_list = record.record_data.loc[record.record_data['type'] == 'CDS', "start_codon"]
         codons = figures.get_frequency_of_codons(cds_list, start_codon_list)
         frequencies[record.record_id] = codons
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
@@ -128,7 +129,11 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
     #                             '(B) Average genome sizes of Podoviruses,'
     #                             ' Myoviruses, Prochlorococcus and Synechococcus',
     #                             'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
-    figures.stripchart(frequencies, attributes, x.stop_codons)
+    #figures.stripchart(frequencies, attributes, x.stop_codons)
+    figures.test_stripchart(
+        ["Myoviridae+Myoviridae", "Podoviridae+Podoviridae", "HL-Prochlorococcus+HL-Prochlorococcus",
+         "LL-Prochlorococcus+LL-Prochlorococcus", "Synechococcus+Synechococcus"], frequencies, attributes,
+        viruses_and_hosts_they_infect, x.stop_codons)
     # figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
 
 
