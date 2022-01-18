@@ -235,19 +235,20 @@ class Figures:
         plt.scatter(x="Correlation", y="species", data=data, c=color, marker=marker, edgecolor="black", linewidth=0.5)
         # seaborn.stripplot(x="Correlation", y="species", data=data, dodge=True,palette=color, marker=marker,linewidth=1)
 
-    def add_data_to_stripplot(self, df):
-        self.draw_on_stripplot(df[(df['species'] == "HL-Prochlorococcus+HL-Prochlorococcus")], ["none"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "LL-Prochlorococcus+LL-Prochlorococcus")], ["none"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "Synechococcus+Synechococcus")], ["none"], "o")
-        self.draw_on_stripplot(df[(df['species'] == "Podoviridae+Podoviridae")], ["blue"], "*")
-        self.draw_on_stripplot(df[(df['species'] == "Myoviridae+Myoviridae")], ["red"], "*")
-
-        self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Podoviridae+HL-Prochlorococcus")], ["blue"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Podoviridae+LL-Prochlorococcus")], ["blue"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "Syn-infecting Podoviridae+Synechococcus")], ["blue"], "o")
-        self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Myoviridae+HL-Prochlorococcus")], ["red"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Myoviridae+LL-Prochlorococcus")], ["red"], "^")
-        self.draw_on_stripplot(df[(df['species'] == "Syn-infecting Myoviridae+Synechococcus")], ["red"], "o")
+    def add_data_to_stripplot(self, df,same_species):
+        if same_species:
+            self.draw_on_stripplot(df[(df['species'] == "HL-Prochlorococcus+HL-Prochlorococcus")], ["none"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "LL-Prochlorococcus+LL-Prochlorococcus")], ["none"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Synechococcus+Synechococcus")], ["none"], "o")
+            self.draw_on_stripplot(df[(df['species'] == "Podoviridae+Podoviridae")], ["blue"], "*")
+            self.draw_on_stripplot(df[(df['species'] == "Myoviridae+Myoviridae")], ["red"], "*")
+        else:
+            self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Podoviridae+HL-Prochlorococcus")], ["blue"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Podoviridae+LL-Prochlorococcus")], ["blue"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Syn-infecting Podoviridae+Synechococcus")], ["blue"], "o")
+            self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Myoviridae+HL-Prochlorococcus")], ["red"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Pro-infecting Myoviridae+LL-Prochlorococcus")], ["red"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Syn-infecting Myoviridae+Synechococcus")], ["red"], "o")
 
     def test_stripchart(self, pairs_list, frequencies_dict, main_attributes,
                         viruses_and_hosts_they_infect , stop_codons):
@@ -271,8 +272,8 @@ class Figures:
 
         df_virus_host_pairs = self.get_df_virus_host_pairs(species, frequencies, pairs_list, infecting)
 
-        self.add_data_to_stripplot(df_same_species_pairs)
-        self.add_data_to_stripplot(df_virus_host_pairs)
+        self.add_data_to_stripplot(df_same_species_pairs,True)
+        self.add_data_to_stripplot(df_virus_host_pairs,False)
 
         plt.grid(color='green', linestyle='--', linewidth=0.5)
         plt.xlabel("Correlation")
