@@ -83,6 +83,8 @@ class Figures:
         myo_infect_llproch_trna = []
         myo_infect_hlproch_gc_percentage = []
         myo_infect_hlproch_trna = []
+        myo_infect_proch_gc_percentage = []
+        myo_infect_proch_trna = []
 
         for index, row in myo_df.iterrows():
             myo_host_list = viruses_and_hosts_they_infect.get(row['name'])
@@ -101,6 +103,11 @@ class Figures:
                 if not isinstance(row['tRNA'], int):
                     row['tRNA'] = 0
                 myo_infect_hlproch_trna.append(row['tRNA'])
+            if any("Prochlorococcus" in s for s in myo_host_list):
+                myo_infect_proch_gc_percentage.append(row['percentage_GC_in_genes'])
+                if not isinstance(row['tRNA'], int):
+                    row['tRNA'] = 0
+                myo_infect_proch_trna.append(row['tRNA'])
 
         # Podoviridae organisms:
         podo_df = main_attributes.loc[main_attributes['family'] == 'Podoviridae']
@@ -142,6 +149,8 @@ class Figures:
                     edgecolor="none")
         plt.scatter(myo_infect_hlproch_gc_percentage, myo_infect_hlproch_trna, c="red", linewidths=2, marker="^",
                     edgecolor="none")
+        plt.scatter(myo_infect_proch_gc_percentage, myo_infect_proch_trna, c="red", linewidths=2, marker="^",
+                    edgecolor="none")
 
         plt.scatter(podo_infect_syne_gc_percentage, podo_infect_syne_trna, c="b", marker="o", edgecolor="none")
         plt.scatter(podo_infect_llproch_gc_percentage, podo_infect_llproch_trna, c="b", marker="^", edgecolor="none")
@@ -149,8 +158,8 @@ class Figures:
 
         plt.title("(A) The tRNA Gene Copy Number of various cyanobacteria and cyanophages against their GC Content")
         plt.legend(["Synechococcus", "LL-Prochlorococcus", "HL-Prochlorococcus", "Myo (host: Synechococcus)",
-                    "Myo (host: LL-Prochlorococcus)", "Myo (host: HL-Prochlorococcus)", "Podo (host: Synechococcus)",
-                    "Podo (host: LL-Prochlorococcus)", "Podo (host: HL-Prochlorococcus)"])
+                    "Myo (host: LL-Prochlorococcus)", "Myo (host: HL-Prochlorococcus)","Myo (host: Prochlorococcus)",
+                    "Podo (host: Synechococcus)", "Podo (host: LL-Prochlorococcus)", "Podo (host: HL-Prochlorococcus)"])
 
         plt.xlabel("GC content (%)")
         plt.ylabel("tRNA Gene Copy Number")
@@ -230,16 +239,22 @@ class Figures:
     #     seaborn.stripplot(x="Correlation", y="species", data=df)
     #     plt.grid(color='green', linestyle='--', linewidth=0.5)
     #     plt.show()
-#---------------------------------------------------
+    # ---------------------------------------------------
     def draw_on_stripplot(self, data, color, marker):
-        plt.scatter(x="Correlation", y="species", data=data, c=color, marker=marker, edgecolor="black", linewidth=0.5)
-        # seaborn.stripplot(x="Correlation", y="species", data=data, dodge=True,palette=color, marker=marker,linewidth=1)
+        # plt.scatter(x="Correlation", y="species", data=data, c=color, marker=marker, edgecolor="black", linewidth=0.5,y_jitter=0.2)
+        order = ["HL-Prochlorococcus+HL-Prochlorococcus", "LL-Prochlorococcus+LL-Prochlorococcus",
+                 "Synechococcus+Synechococcus", "Podoviridae+Podoviridae", "Myoviridae+Myoviridae",
+                 "Pro-infecting Podoviridae+HL-Prochlorococcus", "Pro-infecting Podoviridae+LL-Prochlorococcus",
+                 "Syn-infecting Podoviridae+Synechococcus", "Pro-infecting Myoviridae+HL-Prochlorococcus",
+                 "Pro-infecting Myoviridae+LL-Prochlorococcus","Syn-infecting Myoviridae+Synechococcus"]
+        seaborn.stripplot(x="Correlation", y="species", data=data,order=order, dodge=True, palette=color, marker=marker,
+                          linewidth=0.5,jitter=0.35,edgecolor='black')
 
-    def add_data_to_stripplot(self, df,same_species):
+    def add_data_to_stripplot(self, df, same_species):
         if same_species:
-            self.draw_on_stripplot(df[(df['species'] == "HL-Prochlorococcus+HL-Prochlorococcus")], ["none"], "^")
-            self.draw_on_stripplot(df[(df['species'] == "LL-Prochlorococcus+LL-Prochlorococcus")], ["none"], "^")
-            self.draw_on_stripplot(df[(df['species'] == "Synechococcus+Synechococcus")], ["none"], "o")
+            self.draw_on_stripplot(df[(df['species'] == "HL-Prochlorococcus+HL-Prochlorococcus")], ["white"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "LL-Prochlorococcus+LL-Prochlorococcus")], ["white"], "^")
+            self.draw_on_stripplot(df[(df['species'] == "Synechococcus+Synechococcus")], ["white"], "o")
             self.draw_on_stripplot(df[(df['species'] == "Podoviridae+Podoviridae")], ["blue"], "*")
             self.draw_on_stripplot(df[(df['species'] == "Myoviridae+Myoviridae")], ["red"], "*")
         else:
@@ -251,14 +266,21 @@ class Figures:
             self.draw_on_stripplot(df[(df['species'] == "Syn-infecting Myoviridae+Synechococcus")], ["red"], "o")
 
     def test_stripchart(self, pairs_list, frequencies_dict, main_attributes,
-                        viruses_and_hosts_they_infect , stop_codons):
+                        viruses_and_hosts_they_infect, stop_codons):
         species = []
         frequencies = []
         infecting = []
 
+        #remove the stop codons
         for stop_codon in stop_codons:
-             for frequency_dict in frequencies_dict.values():
-                 frequency_dict.pop(stop_codon, None)
+            for frequency_dict in frequencies_dict.values():
+                frequency_dict.pop(stop_codon, None)
+
+        #remove codons that contain 'N'
+        for frequency_dict in frequencies_dict.values():
+            for key in frequency_dict.copy().keys():
+                if 'N' in key:
+                    frequency_dict.pop(key, None)
 
         for key, value in frequencies_dict.items():
             species.append(main_attributes.loc[main_attributes['name'] == key, 'family'][0])
@@ -272,8 +294,8 @@ class Figures:
 
         df_virus_host_pairs = self.get_df_virus_host_pairs(species, frequencies, pairs_list, infecting)
 
-        self.add_data_to_stripplot(df_same_species_pairs,True)
-        self.add_data_to_stripplot(df_virus_host_pairs,False)
+        self.add_data_to_stripplot(df_same_species_pairs, True)
+        self.add_data_to_stripplot(df_virus_host_pairs, False)
 
         plt.grid(color='green', linestyle='--', linewidth=0.5)
         plt.xlabel("Correlation")
@@ -299,7 +321,7 @@ class Figures:
         for i in range(len(species) - 1):
             for j in range(i + 1, len(species)):
                 if species[i] in ["Myoviridae", "Podoviridae"]:  # if the item is virus
-                    if ("LL-Prochlorococcus" in infecting[i]) | ("HL-Prochlorococcus" in infecting[i]):
+                    if ("LL-Prochlorococcus" in infecting[i]) | ("HL-Prochlorococcus" in infecting[i])| ("Prochlorococcus" in infecting[i]):
                         species_vs_species.append("Pro-infecting " + str(species[i]) + "+" + str(species[j]))
                         correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
                     if "Synechococcus" in infecting[i]:
@@ -316,10 +338,24 @@ class Figures:
         data1 = {"days": ["Monday", "Monday"], "Pay": [6, 9]}
         data2 = {"days": ["Thursday", "Thursday"], "Pay": [5, 4]}
 
-        plt.scatter(x="Pay", y="days", data=data1, c="red", marker="^", linewidth=1)
-        plt.scatter(x="Pay", y="days", data=data2, c="blue", marker="o", linewidth=1)
+        all_days = ["Monday", "Thursday"]
+
+        seaborn.stripplot(x="Pay", y="days", data=data1, order=all_days, dodge=True, palette=["red"], marker="^",
+                          linewidth=1)
+        seaborn.stripplot(x="Pay", y="days", data=data2, order=all_days, dodge=True, palette=["blue"], marker="o",
+                          linewidth=1)
 
         plt.grid(color='green', linestyle='--', linewidth=0.5)
-        plt.ylim(len(plt.yticks()) - 0.5, -0.5)
         plt.tight_layout()
         plt.show()
+
+        # data1 = {"days": ["Monday", "Monday"], "Pay": [6, 9]}
+        # data2 = {"days": ["Thursday", "Thursday"], "Pay": [5, 4]}
+        #
+        # plt.scatter(x="Pay", y="days", data=data1, c="red", marker="^", linewidth=1)
+        # plt.scatter(x="Pay", y="days", data=data2, c="blue", marker="o", linewidth=1)
+        #
+        # plt.grid(color='green', linestyle='--', linewidth=0.5)
+        # plt.ylim(len(plt.yticks()) - 0.5, -0.5)
+        # plt.tight_layout()
+        # plt.show()
