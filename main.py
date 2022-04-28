@@ -219,4 +219,4 @@ if __name__ == '__main__':
     viruses_and_hosts_they_infect = viruses_and_hosts_updated()
     records, attributes = get_records(species_names_dictionary)
 
-    manageFigures(records, attributes, viruses_and_hosts_they_infect)
+    #manageFigures(records, attributes, viruses_and_hosts_they_infect)

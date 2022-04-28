@@ -4,7 +4,7 @@ from collections import Counter
 from Bio import Entrez, SeqIO
 
 from .helpers import get_interregions
-from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, GENES, NUCLEOTIDE
+from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, FASTA_FOLDER, GENES, NUCLEOTIDE
 
 fields = {'name', 'family', 'genome_size', 'gene_length_in_genome', 'percentage_gene_length_in_genome',
           'percentage_GC_in_genome', 'percentage_GC_in_genes', 'intergene_length_in_genome',
@@ -15,6 +15,9 @@ def assert_gb_folder():
     if not os.path.exists(GENE_BANK_FOLDER):
         os.makedirs(GENE_BANK_FOLDER)
 
+def assert_fasta_folder():
+    if not os.path.exists(FASTA_FOLDER):
+        os.makedirs(FASTA_FOLDER)
 
 def assert_sum_of_genes(dictionary):
     gene_num = dictionary["gene"]
@@ -44,10 +47,12 @@ class Record:
         self.record_id = record_id
         self.record_family = record_family
         self.create_genbank_file()
+        self.create_fasta_file()
         record_content = self.get_record_content()
         self.taxonomy = record_content.annotations['taxonomy']
         self.record_data = parser.get_record_data('data\\csv\\{}.csv'.format(record_id), record_content)
         self.main_attributes = self.get_main_attributes(record_content)
+        
         self.seq = record_content.seq.upper()
 
     def search(self):
@@ -88,6 +93,19 @@ class Record:
                 with open(GENE_BANK_FOLDER + '{}.gb'.format(self.record_id), "w") as out_handle:
                     out_handle.write(handle.read())
                 print("The file: {}.gb created".format(self.record_id))
+
+    def create_fasta_file(self):
+        assert_fasta_folder()
+        if not os.path.exists(FASTA_FOLDER + '{}.fasta'.format(self.record_id)):  # if the file not exists
+            Entrez.email = ENTREZ_EMAIL
+
+            with Entrez.efetch(db=NUCLEOTIDE, id=self.record_id, rettype="fasta",
+                               retmode="text") as handle:  # ,  term=searchTerm
+                with open(FASTA_FOLDER + '{}.fasta'.format(self.record_id), "w") as out_handle:
+                    out_handle.write(handle.read().replace(".1", ""))
+                print("The file: {}.fasta created".format(self.record_id))
+
+
 
     def get_main_attributes(self, record_content):
         genome_size = self.record_data["length"][0]
