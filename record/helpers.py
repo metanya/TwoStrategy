@@ -152,6 +152,7 @@ def create_data_dictionary(record_gb):
                           "end": feature.location.end,
                           "length": feature.location.end - feature.location.start,
                           "start_codon": start_codon,
+                          "relative_position": feature.location.start/len(seq),
                           "seq": seq[feature.location.start:feature.location.end],
                           "type": feature.type,
                           "trans_table": trans_table,

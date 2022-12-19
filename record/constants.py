@@ -1,5 +1,8 @@
 NUCLEOTIDE = "nucleotide"
 GENE_BANK_FOLDER = "data\\gb\\"
 FASTA_FOLDER = "data\\fasta\\"
-ENTREZ_EMAIL = "matanya.je@gmail.com"
+TRNA_SCAN_FOLDER = "data\\trna_scan\\"
+TRNA_SCAN_CSV_FOLDER = "data\\trna_scan_csv\\"
+
+ENTREZ_EMAIL = "{SOME_EMAIL}@gmail.com"
 GENES = ['CDS', 'tmRNA', 'tRNA', 'ncRNA', 'rRNA']

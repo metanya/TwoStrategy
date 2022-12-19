@@ -1,9 +1,14 @@
+from typing import Tuple
+
+from parsers.helpers import pd
+from figures import figures
 from figures.figures import Figures
+from record.record import Record
 from records.records import Records
-import pandas as pd
+from typing import Type
 
 
-def species_names_dictionary_old():
+def species_old() -> dict[str, str]:
     return {
         # "KM034562.1":"KM034562.1",
         # "NC_045512.2": "NC_045512.2", # cororna virus
@@ -41,7 +46,7 @@ def species_names_dictionary_old():
     }
 
 
-def species():
+def species() -> dict[str, str]:
     print('Creting species.')
     return {
         # "KM034562.1":"KM034562.1",
@@ -80,8 +85,9 @@ def species():
         "NC_009481.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_7803], circular CON 17-APR-2017 !
     }
 
-def species_updated():
-    print('Creting species.')
+
+def species_updated() -> dict[str, str]:
+    #print('Creting species.')
     return {
         # "KM034562.1":"KM034562.1",
         # "NC_045512.2": "NC_045512.2", # cororna virus
@@ -104,6 +110,9 @@ def species_updated():
         "NC_015281.1": "Myoviridae",  # [Phage: Myoviridae S-ShM2]
         "NC_015286.1": "Myoviridae",  # [Phage: Myoviridae Syn19]
 
+        "NC_015288.1": "Myoviridae",  # [Phage: Myoviridae Syn1]#new!
+        "NC_015287.1": "Myoviridae",  # [Phage: Myoviridae S-SSM7]#new!
+
         # # # ------Podoviruses:------
         "NC_006882.1": "Podoviridae",  # [Phage: Podoviridae P_SSP7], circular PHG 19-NOV-2010
         "NC_009531.1": "Podoviridae",  # [Phage: Podoviridae Syn5], linear   PHG 20-DEC-2020 !
@@ -131,7 +140,8 @@ def species_updated():
         "NC_009481.1": "Synechococcus",  # [Cyanobacteria: Synechococcus WH_7803], circular CON 17-APR-2017 !
     }
 
-def viruses_and_hosts():
+
+def viruses_and_hosts() -> dict[str, list[str]]:
     print('Creting viruses and hosts.')
     return {
         # '''***Cyanophages:***'''
@@ -149,8 +159,9 @@ def viruses_and_hosts():
         "NC_003390.1": ['Synechococcus'],  # [Phage: Podoviridae P60], linear   PHG 17-APR-2009
     }
 
-def viruses_and_hosts_updated():
-    print('Creting viruses and hosts.')
+
+def viruses_and_hosts_updated() -> dict[str, list[str]]:
+
     return {
         # '''***Cyanophages:***'''
         # ------Moyviruses:------
@@ -165,7 +176,7 @@ def viruses_and_hosts_updated():
         "NC_015280.1": ['Prochlorococcus'],  # [Phage: Myoviridae P-HM1]
         "NC_015284.1": ['Prochlorococcus'],  # [Phage: Myoviridae P-HM2]
         "NC_015283.1": ['Prochlorococcus'],  # [Phage: Myoviridae P-RSM4]
-        "NC_015285.1": ['Synechococcus','Prochlorococcus'],  # [Phage: Myoviridae Syn33]#################
+        "NC_015285.1": ['Synechococcus', 'Prochlorococcus'],  # [Phage: Myoviridae Syn33]#################
         "NC_015290.1": ['Prochlorococcus'],  # [Phage: Myoviridae P-SSM7]
         "NC_015282.1": ['Synechococcus'],  # [Phage: Myoviridae S-SM1]
         "NC_015279.1": ['Synechococcus'],  # [Phage: Myoviridae S-SM2]
@@ -173,21 +184,25 @@ def viruses_and_hosts_updated():
         "NC_015281.1": ['Synechococcus'],  # [Phage: Myoviridae S-ShM2]
         "NC_015286.1": ['Synechococcus'],  # [Phage: Myoviridae Syn19]
 
+        "NC_015288.1": ['Prochlorococcus'],  # [Phage: Myoviridae Syn1]#new!
+        "NC_015287.1": ['Synechococcus'],  # [Phage: Myoviridae S-SSM7]#new!
+
         # ------Podoviruses:------
         "NC_006882.1": ['HL-Prochlorococcus'],  # [Phage: Podoviridae P_SSP7], circular PHG 19-NOV-2010
         "NC_009531.1": ['Synechococcus'],  # [Phage: Podoviridae Syn5], linear   PHG 20-DEC-2020 !
         "NC_003390.1": ['Synechococcus'],  # [Phage: Podoviridae P60], linear   PHG 17-APR-2009
     }
 
-def get_records(dictionary):
+
+def get_records(species: dict[str, str]) -> Tuple[list[Record], pd.DataFrame]:
     print('Create records of species.')
-    r = Records(dictionary)
+    r = Records(species)
     return r.records, r.attributes
 
 
-def manageFigures(records, attributes, viruses_and_hosts_they_infect):
+def manage_figures(types:list[str], records:list[Record], attributes:pd.DataFrame, viruses_and_hosts:dict[str,list[str]]):
     frequencies = {}
-    types = ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"]
+    #TO_DEL#types = ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"]
     figures = Figures()
     x = figures.get_codon_table(11)
     for record in records:
@@ -195,28 +210,34 @@ def manageFigures(records, attributes, viruses_and_hosts_they_infect):
         # start_codon = figures.get_start_codon(record.seq, x)
         # record contains list of all the genes
         # #1. get list of the CDS sequences and there start codons
-        #  2,. get frequency of codons  a) For cds in CDS{
-        #                                    add to frequency dict the cds frequency of the seq starting from the start codon
+        #  2. get frequency of codons  a) For cds in CDS{
+        # add to frequency dict the cds frequency of the seq starting from the start codon
         #                                #                                   }
         cds_list = record.record_data.loc[record.record_data['type'] == 'CDS', "seq"].values.tolist()
         start_codon_list = record.record_data.loc[record.record_data['type'] == 'CDS', "start_codon"]
         codons = figures.get_frequency_of_codons(cds_list, start_codon_list)
         frequencies[record.record_id] = codons
+
+        #figures.show_relative_position(record.record_data, attributes, record.record_family, record.record_id)
+
     mean_and_std_of_types = figures.get_mean_and_std(records, types)
 
-    #figures.scatter_plot(attributes, viruses_and_hosts_they_infect)
-    # figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
+    #figures.scatter_plot(attributes, viruses_and_hosts)
+    #figures.bar_chart_histogram(mean_and_std_of_types, 'Genome size',
     #                             '(B) Average genome sizes of Podoviruses,'
-    #                             ' Myoviruses, Prochlorococcus and Synechococcus',
+    #                            ' Myoviruses, Prochlorococcus and Synechococcus',
     #                             'figure1_B_bar_plot_with_error_bars.png')  # figure1, B
     figures.test_stripchart(
         ["Myoviridae+Myoviridae", "Podoviridae+Podoviridae", "HL-Prochlorococcus+HL-Prochlorococcus",
-         "LL-Prochlorococcus+LL-Prochlorococcus", "Synechococcus+Synechococcus"], frequencies, attributes,
-        viruses_and_hosts_they_infect, x.stop_codons)
+          "LL-Prochlorococcus+LL-Prochlorococcus", "Synechococcus+Synechococcus"], frequencies, attributes,
+        viruses_and_hosts, x.stop_codons)
+
 
 if __name__ == '__main__':
-    species_names_dictionary = species_updated()
-    viruses_and_hosts_they_infect = viruses_and_hosts_updated()
-    records, attributes = get_records(species_names_dictionary)
+    species_id_and_type = species_updated()
+    viruses_and_hosts = viruses_and_hosts_updated()
+    records, attributes = get_records(species_id_and_type)
 
-    #manageFigures(records, attributes, viruses_and_hosts_they_infect)
+    types = ["Podoviridae", "Myoviridae", "Prochlorococcus", "Synechococcus"]
+
+    manage_figures(types, records, attributes, viruses_and_hosts)

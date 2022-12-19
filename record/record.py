@@ -1,10 +1,13 @@
 import os
 from collections import Counter
+from typing import Type
 
 from Bio import Entrez, SeqIO
 
+from parsers.parser import Parser
 from .helpers import get_interregions
-from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, FASTA_FOLDER, GENES, NUCLEOTIDE
+from .constants import ENTREZ_EMAIL, GENE_BANK_FOLDER, FASTA_FOLDER, TRNA_SCAN_FOLDER, GENES, NUCLEOTIDE
+from .trnaScan import TrnaScan
 
 fields = {'name', 'family', 'genome_size', 'gene_length_in_genome', 'percentage_gene_length_in_genome',
           'percentage_GC_in_genome', 'percentage_GC_in_genes', 'intergene_length_in_genome',
@@ -15,9 +18,11 @@ def assert_gb_folder():
     if not os.path.exists(GENE_BANK_FOLDER):
         os.makedirs(GENE_BANK_FOLDER)
 
+
 def assert_fasta_folder():
     if not os.path.exists(FASTA_FOLDER):
         os.makedirs(FASTA_FOLDER)
+
 
 def assert_sum_of_genes(dictionary):
     gene_num = dictionary["gene"]
@@ -42,17 +47,19 @@ def assert_number_of_intergenes_are_greater_than_genes(size_of_genes, size_of_in
 
 class Record:
 
-    def __init__(self, record_id, record_family, parser):
+    def __init__(self, record_id: str, record_family: str, parser: Type[Parser]):
         print('Creating record with id: ' + record_id)
         self.record_id = record_id
         self.record_family = record_family
         self.create_genbank_file()
         self.create_fasta_file()
+        TrnaScan(record_id, record_family)
         record_content = self.get_record_content()
+
         self.taxonomy = record_content.annotations['taxonomy']
         self.record_data = parser.get_record_data('data\\csv\\{}.csv'.format(record_id), record_content)
         self.main_attributes = self.get_main_attributes(record_content)
-        
+
         self.seq = record_content.seq.upper()
 
     def search(self):
@@ -105,7 +112,18 @@ class Record:
                     out_handle.write(handle.read().replace(".1", ""))
                 print("The file: {}.fasta created".format(self.record_id))
 
+    def trna_scan_parser(self):
+        # with open(TRNA_SCAN_FOLDER+'{}.fasta'.format(self.record_id), "w") as f:
+        if (self.record_id == "FM207411.1"):
+            with open("data\\trna_scan\\FM207411.1.fasta", "r") as f:
+                for line in f:
+                    line = line.rstrip()
+                    if line.startswith('>'):
+                        line1 = line.split()
+                        print(line1[0])
+                        print(line1[1])
 
+                        # print(": ".join([line1[0], line1[-1]]))  # add characters you want to strip
 
     def get_main_attributes(self, record_content):
         genome_size = self.record_data["length"][0]

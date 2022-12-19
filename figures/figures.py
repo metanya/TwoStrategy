@@ -1,11 +1,59 @@
+import os
 import numpy
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import seaborn
 from scipy.stats.stats import pearsonr
 from collections import OrderedDict
 import Bio.Data.CodonTable as Codon
 import pandas as pds
+from figures.constants import MYOVIRIDAE, PODOVIRIDAE, SYNECHOCOCCUS, PROCHLOROCOCCUS, HL_PROCHLOROCOCCUS, LL_PROCHLOROCOCCUS
+from figures.constants import BLUE, RED, BLACK, NONE
+from figures.constants import T_RNA, PERCENTAGE_GC_IN_GENES, FAMILY, NAME
+
+def show_relative_position(data, attributes, record_family, record_id):
+    trna_data = data[data['type'] == 'tRNA']
+    if record_family == "Myoviridae":
+        seaborn.stripplot(x="relative_position", data=trna_data, dodge=True, palette=["red"], marker="*",
+                          linewidth=1)
+    elif record_family == "Podoviridae":
+        seaborn.stripplot(x="relative_position", data=trna_data, dodge=True, palette=["blue"], marker="*",
+                          linewidth=1)
+    elif record_family == "LL-Prochlorococcus" or record_family == "HL-Prochlorococcus":
+        seaborn.stripplot(x="relative_position", data=trna_data, dodge=True, palette=["white"], marker="^",
+                          linewidth=1)
+    else:  # Synechococcus
+        seaborn.stripplot(x="relative_position", data=trna_data, dodge=True, palette=["white"], marker="o",
+                          linewidth=1)
+    plt.xlim([0, 1])
+    # attributes.loc[attributes['name'] == record_id, 'percentage_GC_in_genome'][0]
+    # a=attributes.loc[attributes['name'] == str(record_id), 'percentage_GC_in_genes'].tolist()
+    plt.title(record_id + " | (%GC in genome:" + str(
+        round(attributes.loc[attributes['name'] == record_id, 'percentage_GC_in_genome'][0],
+              3)) + ") | (" + record_family + ")")
+    # attributes.loc[attributes['name'] == record_id, 'percentage_GC_in_genes']
+
+    # plt.title(record_id +" ("+record_family+")")
+
+    if not os.path.exists("data\\png\\relative_position\\"):
+        os.makedirs("data\\png\\relative_position\\")
+    plt.savefig('data\\png\\relative_position\\{}.png'.format(record_id))
+
+    plt.show()
+
+
+def get_vals_by_family_and_attribute(main_attributes: pd.DataFrame, family: str, column: str) -> list[int]:
+    return main_attributes.loc[main_attributes[FAMILY] == family, column].tolist()
+
+
+def add_attributes_to_lists(host_list, virus_infect_host_gc_percent, virus_infect_host_trna, row, host_family: str, attribute1: str,
+      attribute2):
+    if any(host_family in s for s in host_list):
+        virus_infect_host_gc_percent.append(row[attribute1])
+        if not isinstance(row[attribute2], int):
+            row[attribute2] = 0
+        virus_infect_host_trna.append(row[attribute2])
 
 
 class Figures:
@@ -54,113 +102,67 @@ class Figures:
         if len(sizes) != 0:
             return sizes.mean(), sizes.std()
 
-    # -----
-
     @staticmethod
     def scatter_plot(main_attributes, viruses_and_hosts_they_infect):
         # Synechococcus organisms:
-        syne_gc_percentage = main_attributes.loc[
-            main_attributes['family'] == 'Synechococcus', 'percentage_GC_in_genes'].tolist()
-        syne_trna = main_attributes.loc[
-            main_attributes['family'] == 'Synechococcus', 'tRNA'].tolist()
+        syn_gc = get_vals_by_family_and_attribute(main_attributes, SYNECHOCOCCUS, PERCENTAGE_GC_IN_GENES)
+        syn_trna = get_vals_by_family_and_attribute(main_attributes, SYNECHOCOCCUS, T_RNA)
         # LL-Prochlorococcus organisms:
-        llproch_gc_percentage = main_attributes.loc[
-            main_attributes['family'] == 'LL-Prochlorococcus', 'percentage_GC_in_genes'].tolist()
-        llproch_trna = main_attributes.loc[
-            main_attributes['family'] == 'LL-Prochlorococcus', 'tRNA'].tolist()
+        llproch_gc = get_vals_by_family_and_attribute(main_attributes, LL_PROCHLOROCOCCUS,PERCENTAGE_GC_IN_GENES)
+        llproch_trna = get_vals_by_family_and_attribute(main_attributes, LL_PROCHLOROCOCCUS, T_RNA)
         # HL-Prochlorococcus organisms:
-        hlproch_gc_percentage = main_attributes.loc[
-            main_attributes['family'] == 'HL-Prochlorococcus', 'percentage_GC_in_genes'].tolist()
-        hlproch_trna = main_attributes.loc[
-            main_attributes['family'] == 'HL-Prochlorococcus', 'tRNA'].tolist()
+        hlproch_gc = get_vals_by_family_and_attribute(main_attributes, HL_PROCHLOROCOCCUS,PERCENTAGE_GC_IN_GENES)
+        hlproch_trna = get_vals_by_family_and_attribute(main_attributes, HL_PROCHLOROCOCCUS, T_RNA)
+
         # Myoviridae organisms:
-        myo_df = main_attributes.loc[main_attributes['family'] == 'Myoviridae']
+        myo_df = main_attributes.loc[main_attributes[FAMILY] == MYOVIRIDAE]
         # Myoviridae (host: Synechococcus):
-        myo_infect_syne_gc_percentage = []
-        myo_infect_syne_trna = []
+        myo_infect_syn_gc, myo_infect_syn_trna = [], []
         # Myoviridae (host: Prochlorococcus):
-        myo_infect_llproch_gc_percentage = []
-        myo_infect_llproch_trna = []
-        myo_infect_hlproch_gc_percentage = []
-        myo_infect_hlproch_trna = []
-        myo_infect_proch_gc_percentage = []
-        myo_infect_proch_trna = []
+        myo_infect_llproch_gc, myo_infect_llproch_trna = [], []
+        myo_infect_hlproch_gc, myo_infect_hlproch_trna = [], []
+        myo_infect_proch_gc, myo_infect_proch_trna = [], []
 
         for index, row in myo_df.iterrows():
-            myo_host_list = viruses_and_hosts_they_infect.get(row['name'])
-            if any("Synechococcus" in s for s in myo_host_list):
-                myo_infect_syne_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                myo_infect_syne_trna.append(row['tRNA'])
-            if any("LL-Prochlorococcus" in s for s in myo_host_list):
-                myo_infect_llproch_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                myo_infect_llproch_trna.append(row['tRNA'])
-            if any("HL-Prochlorococcus" in s for s in myo_host_list):
-                myo_infect_hlproch_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                myo_infect_hlproch_trna.append(row['tRNA'])
-            if any("Prochlorococcus" in s for s in myo_host_list):
-                myo_infect_proch_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                myo_infect_proch_trna.append(row['tRNA'])
+            myo_host_list = viruses_and_hosts_they_infect.get(row[NAME])
+            add_attributes_to_lists(myo_host_list, myo_infect_syn_gc, myo_infect_syn_trna, row, SYNECHOCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
+            add_attributes_to_lists(myo_host_list, myo_infect_llproch_gc, myo_infect_llproch_trna, row, LL_PROCHLOROCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
+            add_attributes_to_lists(myo_host_list, myo_infect_hlproch_gc, myo_infect_hlproch_trna, row, HL_PROCHLOROCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
+            add_attributes_to_lists(myo_host_list, myo_infect_proch_gc, myo_infect_proch_trna, row, PROCHLOROCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
 
         # Podoviridae organisms:
-        podo_df = main_attributes.loc[main_attributes['family'] == 'Podoviridae']
+        podo_df = main_attributes.loc[main_attributes[FAMILY] == PODOVIRIDAE]
         # Podoviridae (host: Synechococcus):
-        podo_infect_syne_gc_percentage = []
-        podo_infect_syne_trna = []
+        podo_infect_syn_gc, podo_infect_syn_trna = [], []
         # Podoviridae (host: Prochlorococcus):
-        podo_infect_llproch_gc_percentage = []
-        podo_infect_llproch_trna = []
-        podo_infect_hlproch_gc_percentage = []
-        podo_infect_hlproch_trna = []
+        podo_infect_llproch_gc, podo_infect_llproch_trna = [], []
+        podo_infect_hlproch_gc, podo_infect_hlproch_trna = [], []
 
         for index, row in podo_df.iterrows():
-            podo_host_list = viruses_and_hosts_they_infect.get(row['name'])
-            if any("Synechococcus" in s for s in podo_host_list):
-                podo_infect_syne_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                podo_infect_syne_trna.append(row['tRNA'])
-            if any("LL-Prochlorococcus" in s for s in podo_host_list):
-                podo_infect_llproch_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                podo_infect_llproch_trna.append(row['tRNA'])
-            if any("HL-Prochlorococcus" in s for s in podo_host_list):
-                podo_infect_hlproch_gc_percentage.append(row['percentage_GC_in_genes'])
-                if not isinstance(row['tRNA'], int):
-                    row['tRNA'] = 0
-                podo_infect_hlproch_trna.append(row['tRNA'])
+            podo_host_list = viruses_and_hosts_they_infect.get(row[NAME])
+            add_attributes_to_lists(podo_host_list, podo_infect_syn_gc, podo_infect_syn_trna, row, SYNECHOCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
+            add_attributes_to_lists(podo_host_list, podo_infect_llproch_gc, podo_infect_llproch_trna, row, LL_PROCHLOROCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
+            add_attributes_to_lists(podo_host_list, podo_infect_hlproch_gc, podo_infect_hlproch_trna, row, HL_PROCHLOROCOCCUS, PERCENTAGE_GC_IN_GENES, T_RNA)
 
-        plt.scatter(syne_gc_percentage, syne_trna, c="none", marker="o", edgecolor="black")
+        plt.scatter(syn_gc, syn_trna, c=NONE, marker="o", edgecolor=BLACK)
 
-        plt.scatter(llproch_gc_percentage, llproch_trna, c="none", marker="^", edgecolor="black")
-        plt.scatter(hlproch_gc_percentage, hlproch_trna, c="none", marker="^", edgecolor="black")
+        plt.scatter(llproch_gc, llproch_trna, c=NONE, marker="^", edgecolor=BLACK)
+        plt.scatter(hlproch_gc, hlproch_trna, c=NONE, marker="^", edgecolor=BLACK)
 
-        plt.scatter(myo_infect_syne_gc_percentage, myo_infect_syne_trna, c="red", linewidths=2, marker="o",
-                    edgecolor="none")
-        plt.scatter(myo_infect_llproch_gc_percentage, myo_infect_llproch_trna, c="red", linewidths=2, marker="^",
-                    edgecolor="none")
-        plt.scatter(myo_infect_hlproch_gc_percentage, myo_infect_hlproch_trna, c="red", linewidths=2, marker="^",
-                    edgecolor="none")
-        plt.scatter(myo_infect_proch_gc_percentage, myo_infect_proch_trna, c="red", linewidths=2, marker="^",
-                    edgecolor="none")
+        plt.scatter(myo_infect_syn_gc, myo_infect_syn_trna, c=RED, linewidths=2, marker="o", edgecolor=NONE)
+        plt.scatter(myo_infect_llproch_gc, myo_infect_llproch_trna, c=RED, linewidths=2, marker="^", edgecolor=NONE)
+        plt.scatter(myo_infect_hlproch_gc, myo_infect_hlproch_trna, c=RED, linewidths=2, marker="^", edgecolor=NONE)
+        plt.scatter(myo_infect_proch_gc, myo_infect_proch_trna, c=RED, linewidths=2, marker="^", edgecolor=NONE)
 
-        plt.scatter(podo_infect_syne_gc_percentage, podo_infect_syne_trna, c="b", marker="o", edgecolor="none")
-        plt.scatter(podo_infect_llproch_gc_percentage, podo_infect_llproch_trna, c="b", marker="^", edgecolor="none")
-        plt.scatter(podo_infect_hlproch_gc_percentage, podo_infect_hlproch_trna, c="b", marker="^", edgecolor="none")
+        plt.scatter(podo_infect_syn_gc, podo_infect_syn_trna, c=BLUE, marker="o", edgecolor=NONE)
+        plt.scatter(podo_infect_llproch_gc, podo_infect_llproch_trna, c=BLUE, marker="^", edgecolor=NONE)
+        plt.scatter(podo_infect_hlproch_gc, podo_infect_hlproch_trna, c=BLUE, marker="^", edgecolor=NONE)
 
         plt.title("(A) The tRNA Gene Copy Number of various cyanobacteria and cyanophages against their GC Content")
-        plt.legend(["Synechococcus", "LL-Prochlorococcus", "HL-Prochlorococcus", "Myo (host: Synechococcus)",
-                    "Myo (host: LL-Prochlorococcus)", "Myo (host: HL-Prochlorococcus)","Myo (host: Prochlorococcus)",
-                    "Podo (host: Synechococcus)", "Podo (host: LL-Prochlorococcus)", "Podo (host: HL-Prochlorococcus)"])
-
+        plt.legend(
+            [SYNECHOCOCCUS, "LL-Prochlorococcus", "HL-Prochlorococcus", ("Myo (host: %s)" % SYNECHOCOCCUS),
+             "Myo (host: LL-Prochlorococcus)", "Myo (host: HL-Prochlorococcus)", "Myo (host: Prochlorococcus)",
+             ("Podo (host: %s)" % SYNECHOCOCCUS), "Podo (host: LL-Prochlorococcus)", "Podo (host: HL-Prochlorococcus)"])
         plt.xlabel("GC content (%)")
         plt.ylabel("tRNA Gene Copy Number")
         plt.show()
@@ -246,9 +248,10 @@ class Figures:
                  "Synechococcus+Synechococcus", "Podoviridae+Podoviridae", "Myoviridae+Myoviridae",
                  "Pro-infecting Podoviridae+HL-Prochlorococcus", "Pro-infecting Podoviridae+LL-Prochlorococcus",
                  "Syn-infecting Podoviridae+Synechococcus", "Pro-infecting Myoviridae+HL-Prochlorococcus",
-                 "Pro-infecting Myoviridae+LL-Prochlorococcus","Syn-infecting Myoviridae+Synechococcus"]
-        seaborn.stripplot(x="Correlation", y="species", data=data,order=order, dodge=True, palette=color, marker=marker,
-                          linewidth=0.5,jitter=0.35,edgecolor='black')
+                 "Pro-infecting Myoviridae+LL-Prochlorococcus", "Syn-infecting Myoviridae+Synechococcus"]
+        seaborn.stripplot(x="Correlation", y="species", data=data, order=order, dodge=True, palette=color,
+                          marker=marker,
+                          linewidth=0.5, jitter=0.35, edgecolor='black')
 
     def add_data_to_stripplot(self, df, same_species):
         if same_species:
@@ -271,12 +274,12 @@ class Figures:
         frequencies = []
         infecting = []
 
-        #remove the stop codons
+        # remove the stop codons
         for stop_codon in stop_codons:
             for frequency_dict in frequencies_dict.values():
                 frequency_dict.pop(stop_codon, None)
 
-        #remove codons that contain 'N'
+        # remove codons that contain 'N'
         for frequency_dict in frequencies_dict.values():
             for key in frequency_dict.copy().keys():
                 if 'N' in key:
@@ -321,7 +324,8 @@ class Figures:
         for i in range(len(species) - 1):
             for j in range(i + 1, len(species)):
                 if species[i] in ["Myoviridae", "Podoviridae"]:  # if the item is virus
-                    if ("LL-Prochlorococcus" in infecting[i]) | ("HL-Prochlorococcus" in infecting[i])| ("Prochlorococcus" in infecting[i]):
+                    if ("LL-Prochlorococcus" in infecting[i]) | ("HL-Prochlorococcus" in infecting[i]) | (
+                            "Prochlorococcus" in infecting[i]):
                         species_vs_species.append("Pro-infecting " + str(species[i]) + "+" + str(species[j]))
                         correlation.append(self.get_correlation(frequencies[i], frequencies[j]))
                     if "Synechococcus" in infecting[i]:
